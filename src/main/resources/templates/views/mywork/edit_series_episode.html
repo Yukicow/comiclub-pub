@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/edit_series_episode.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+       <div th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <th:block th:fragment="content">
+                <div class="episode-info-wrap">
+                    <div class="episode-info__head section-head">작품 정보</div>
+                    <div class="episode-info__body section-body">
+                        <div class="info__area flex">
+                            <div class="info__thumbnail">
+                                <img th:src="${episode.thumbnailUrl != null ? episode.thumbnailUrl : '/img/noImageHor.png'}">
+                            </div>
+                            <div class="info__box">
+                                <div class="info__title">
+                                    <span th:text="${episode.title}">제목</span>
+                                </div>
+                            </div>
+                            <button class="info-edit-button edit-button" th:onclick="|location.href='/mywork/episodes/${episodeId}/info'|">수정하기</button>
+                            <button class="info-delete-button edit-button" th:onclick="|deleteWork(${episodeId})|">삭제하기</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-sound-wrap">
+                    <div class="bg-sound__head section-head">배경음악</div>
+                    <div class="bg-sound__body section-body">
+                        <div class="bg-sound__cont">
+                            <div>
+                                <input id="bg-sound-file" type="file" accept="audio/*" class="none" >
+                                <label for="bg-sound-file" class="bg-add__button edit-button">+ 배경음악 추가하기</label>
+                            </div>
+                            <ul class="bg-sound-list">
+                                <li th:data-id="${bgSound.id}" th:each="bgSound : ${episode.bgSounds}">
+                                    <div class="bg-sound__box flex">
+                                        <div class="bg-sound__element">
+                                            <audio th:src="${bgSound.fileUrl}" controls></audio>
+                                        </div>
+                                        <div class="scene-start-num bg-sound__element">
+                                            <span>시작 장면</span>
+                                            <input type="text" th:value="${bgSound.startSceneNumber}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="2" disabled>
+                                        </div>
+                                        <div class="scene-end-num bg-sound__element">
+                                            <span>끝 장면</span>
+                                            <input type="text" th:value="${bgSound.endSceneNumber}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="3" disabled>
+                                        </div>
+                                        <div class="bg-sound__option align-items-center flex grow" style="justify-content: right;">
+                                            <div class="bg-sound__element">
+                                                <button class="bg-sound__edit-button edit-button" th:onclick="|editBgSound(${bgSound.id})|">편집</button>
+                                            </div>
+                                            <div class="bg-sound__element">
+                                                <button class="edit-button" th:onclick="|deleteBgSound(${bgSound.id})|">지우기</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-sound__info">
+                            ㆍ'시작 장면'은 배경음악이 시작하는 장면입니다.<br>
+                            ㆍ'끝 장면'은 배경음악이 재생되는 마지막 장면입니다.<br>
+                            ㆍ파일용량은 최대 5MB까지입니다.
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-cont-wrap">
+                    <div class="edit-cont__head section-head">장면</div>
+                    <div class="edit-cont__body section-body">
+                        <div class="scene-cont">
+                            <ul class="scene__list grid">
+                                <li th:each="scene : ${episode.scenes}" th:data-scene-number="${scene.sceneNumber}" th:data-id="${scene.id}">
+                                    <div class="scene__item">
+                                        <div class="scene-edit__option-box">
+                                            <div class="scene-edit__option">
+                                                <a th:href="|/mywork/episodes/${episode.id}/scene?sno=${scene.sceneNumber}|"><button>장면 편집</button></a>
+                                            </div>
+                                            <div class="scene-edit__option">
+                                                <a th:href="|/mywork/episodes/${episode.id}/scene/audio?sno=${scene.sceneNumber}|"><button>오디오 편집</button></a>
+                                            </div>
+                                            <div class="scene-edit__option">
+                                                <button th:data-scene-number="${scene.sceneNumber}" onclick="addSceneToFront(this)">앞 장면 추가</button>
+                                            </div>
+                                            <div class="scene-edit__option">
+                                                <button th:data-scene-number="${scene.sceneNumber}" onclick="deleteScene(this)">장면 삭제</button>
+                                            </div>
+                                        </div>
+                                        <img th:src="${scene.layerImageUrl != null ? scene.layerImageUrl : '/img/noScene.png'}">
+                                        <div class="scene-num" th:text="|장면 ${scene.sceneNumber} (Layer ${scene.totalLayer})|"></div>
+                                    </div>
+                                </li>
+                                <li><button class="scene-add__button" onclick="addScene()">+</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex" style="gap: 30px;">
+                    <button class="edit-button" th:if="${!boardExist}" onclick="createEpisodeBoard()" style="height: 80px;width: 250px;font-size: 28px;">회차 공개</button>
+                    <button class="edit-button" th:if="${boardExist}" onclick="editEpisodeBoard()" style="height: 80px;width: 250px;font-size: 23px;">게시물 정보 편집</button>
+                    <button class="edit-button" th:if="${boardExist}" onclick="deleteEpisodeBoard()" style="height: 80px;width: 250px;font-size: 23px;">게시물 삭제</button>
+                </div>
+            </th:block>
+
+       </div>
+    </div>
+
+
+    <script th:inline="javascript">
+
+        const seriesId = [[${seriesId}]];
+        const episode = [[${episode}]];
+        let bgSoundIndex = episode.bgSounds ? episode.bgSounds.size : 0;
+
+        const bgSoundList = document.querySelector(".bg-sound-list");
+        const bgSoundOptionBox = document.querySelector(
+            ".bg-sound__cont .bg-sound__option"
+        );
+        const bgSoundFile = document.getElementById("bg-sound-file");
+
+        bgSoundFile.addEventListener("input", function () {
+            addBgSound(this);
+            bgSoundFile.value = null;
+        });
+
+        async function addBgSound(target) {
+            if (bgSoundIndex >= 4) {
+                alert("배경음악은 작품당 최대 4개까지 등록 가능합니다.");
+                return;
+            }
+
+            const allowedExtensions = ['mp3', 'wav', 'm4a', 'wma', 'ogg', 'flac', 'aiff'];
+
+            const file = target.files[0];
+            if((file.size / 1024 / 1024) > 5) {
+                alert('파일 크기가 5MB를 넘습니다.');
+                return;
+            }else if(!allowedExtensions.includes(bgSoundFile.value.split('.').pop().toLowerCase())){
+                alert('오디오 파일이 아닙니다. 올바른 파일을 선택하세요.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("bgSound", file, file.name);
+            fetch(`/mywork/episodes/${episode.id}/bg-sound`, {
+                method: "POST",
+                body: formData,
+            })
+            .then(res => res.json())
+            .then((result) => {
+                if (result.status === 200) createBgSound(result.data);
+                else if (result.status >= 500) alert("서버 오류입니다.")
+                else alert("입력값을 확인해 주세요");
+            });
+        }
+        function createBgSound(data) {
+            bgSoundIndex++;
+
+            const li = document.createElement("li");
+            li.dataset.id = data.id;
+
+            const div = document.createElement("div");
+            div.classList.add("bg-sound__box", "flex");
+            div.innerHTML = `
+                <div class="bg-sound__element">
+                    <audio src="${data.fileUrl}" controls></audio>
+                </div>
+                <div class="scene-start-num bg-sound__element">
+                    <span>시작 장면</span>
+                    <input type="text" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="2" disabled>
+                </div>
+                <div class="scene-end-num bg-sound__element">
+                    <span>끝 장면</span>
+                    <input type="text" value="2" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="3" disabled>
+                </div>
+                <div class="bg-sound__option align-items-center flex grow" style="justify-content: right;">
+                    <div class="bg-sound__element">
+                        <button class="bg-sound__edit-button edit-button" onclick="editBgSound(${data.id})">편집</button>
+                    </div>
+                    <div class="bg-sound__element">
+                        <button class="edit-button" onclick="deleteBgSound(${data.id})">삭제</button>
+                    </div>
+                </div>
+            `;
+            li.appendChild(div);
+            bgSoundList.appendChild(li);
+        }
+        function deleteBgSound(soundId) {
+            if (!confirm("해당 배경음악을 삭제하시겠습니까? \n(삭제 시 복구가 불가합니다.)")) return;
+            fetch(`/mywork/episodes/bg-sounds/${soundId}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if(res.status === 200){
+                    const bgSound = document.querySelector(`.bg-sound-list li[data-id="${soundId}"]`);
+                    bgSound.remove();
+                    bgSoundIndex--;
+                }else if(res.status >= 500) alert('서버 오류입니다.');
+                else alert('권한이 없습니다.');
+            })
+        }
+        function editBgSound(soundId) {
+            const bgSoundEditButton = document.querySelector(
+                `.bg-sound-list li[data-id="${soundId}"] .bg-sound__edit-button`
+            );
+            const startNumInput = document.querySelector(
+                `.bg-sound-list li[data-id="${soundId}"] .scene-start-num input`
+            );
+            const endNumInput = document.querySelector(
+                `.bg-sound-list li[data-id="${soundId}"] .scene-end-num input`
+            );
+            if (bgSoundEditButton.classList.contains("editing")) {
+                const change = confirm("변경하시겠습니까?");
+                if(!change) return;
+
+                const startNum = parseInt(startNumInput.value);
+                const endNum = parseInt(endNumInput.value);
+                if (startNum < 1) {
+                    alert("시작장면은 최소 1이상 이어야 합니다.");
+                    startNumInput.value = "1";
+                    return;
+                }else if(startNum > 99){
+                    startNumInput.value = "99";
+                    return;
+                }
+                if (endNum < 2) {
+                    alert("끝장면은 최소 2이상 이어야 합니다.");
+                    endNumInput.value = "2";
+                    return;
+                }else if(endNum > 100){
+                    endNumInput.value = "100";
+                    return;
+                }
+                if (endNum - startNum < 1) {
+                    alert("배경음악은 최소 두 장면 이상 이어져야 합니다.");
+                    endNumInput.value = `${startNum + 1}`;
+                    return;
+                }
+                fetch(`/mywork/episodes/bg-sounds/${soundId}?startNum=${startNum}&endNum=${endNum}`, {method: 'PATCH',})
+                .then(res => {
+                    if(res.status === 200){
+                        startNumInput.disabled = true;
+                        endNumInput.disabled = true;
+                        bgSoundEditButton.classList.toggle("editing");
+                        alert("변경이 완료되었습니다.");
+                    }else if(res.status >= 500) alert('서버 오류입니다.');
+                    else alert('권한이 없습니다.')
+                    })
+            } else {
+                startNumInput.disabled = false;
+                endNumInput.disabled = false;
+                bgSoundEditButton.classList.toggle("editing");
+            }
+        }
+
+    </script>
+    <script th:inline="javascript">
+
+        let nextSceneNumber = episode.scenes.length + 1;
+
+        const sceneList = document.querySelector(".scene__list");
+        const lastList = sceneList.lastElementChild;
+
+        function addScene() {
+            if (nextSceneNumber > 100) {
+                alert("장면은 작품당 최대 100개까지만 등록 가능합니다.");
+                return;
+            }
+
+            fetch(`/mywork/episodes/${episode.id}/scene`, {method: 'POST'})
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    const li = document.createElement("li");
+                    li.dataset.sceneNumber = `${nextSceneNumber}`;
+                    li.dataset.id = result.data;
+                    const newScene = {
+                        id: result.data,
+                        sceneNumber: nextSceneNumber
+                    }
+                    li.appendChild(createSceneElement(newScene));
+                    sceneList.insertBefore(li, lastList);
+                    nextSceneNumber++;
+                }else if(result.status >= 500){
+                    alert('서버 오류입니다. 잠시 후 다시 시도해 주세요.');
+                }else{
+                    alert('장면은 최대 100개까지만 등록 가능합니다.');
+                }
+            })
+
+        }
+
+        function addSceneToFront(target) {
+            if (!confirm("해당 장면 앞에 새 장면을 추가하시겠습니까?")) return;
+            if (nextSceneNumber > 100) {
+                alert("장면은 작품당 최대 100개까지 등록가능합니다.");
+                return;
+            }
+
+            const sceneNumber = target.dataset.sceneNumber;
+            const scene = document.querySelector(`.scene__list li[data-scene-number='${sceneNumber}']`);
+            fetch(`/mywork/episodes/${episode.id}/scene/front?sno=${sceneNumber}`, {method: 'POST'})
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    document.querySelectorAll(".scene__list li").forEach((scene) => {
+                        const liSceneNumber = parseInt(scene.getAttribute("data-scene-number"));
+                        if (liSceneNumber >= sceneNumber) {
+                            const buttons = scene.querySelectorAll(`button[data-scene-number='${liSceneNumber}']`)
+                            const sceneNumInfo = scene.querySelector(".scene-num");
+                            const totalLayer = sceneNumInfo.textContent.slice(-9);
+                            sceneNumInfo.textContent = `장면 ${liSceneNumber + 1} ${totalLayer}`;
+                            scene.dataset.sceneNumber = liSceneNumber + 1;
+                            buttons.forEach(button => button.dataset.sceneNumber = liSceneNumber + 1);
+                        }
+                    });
+                    const newScene = {
+                        id: result.data,
+                        sceneNumber: sceneNumber
+                    }
+                    const li = document.createElement("li");
+                    li.dataset.sceneNumber = `${sceneNumber}`;
+                    li.dataset.id = result.data;
+                    li.appendChild(createSceneElement(newScene));
+                    sceneList.insertBefore(li, scene);
+                    nextSceneNumber++;
+                }else if(result.status >= 500){
+                    alert('서버 오류입니다. 잠시 후 다시 시도해 주세요.');
+                }else{
+                    alert('장면은 최대 100개까지만 등록 가능합니다.');
+                }
+            })
+
+        }
+        function deleteScene(target) {
+            if (
+                !confirm("해당 장면을 삭제하시겠습니까? \n(삭제 시 복구가 불가합니다.)")
+            )
+                return;
+
+            const sceneNumber = target.dataset.sceneNumber;
+            const scene = document.querySelector(`.scene__list li[data-scene-number = "${sceneNumber}"]`);
+            const sceneId = parseInt(scene.dataset.id);
+            fetch(`/mywork/episodes/scenes/${sceneId}`, {method: 'DELETE'})
+            .then(res => {
+                if(res.status === 200){
+                    scene.remove();
+                    document.querySelectorAll(".scene__list li").forEach((scene) => {
+                        const liSceneNumber = parseInt(scene.getAttribute("data-scene-number"));
+                        if (liSceneNumber >= sceneNumber) {
+                            const buttons = scene.querySelectorAll(`button[data-scene-number='${liSceneNumber}']`)
+                            const sceneNumInfo = scene.querySelector(".scene-num");
+                            const totalLayer = sceneNumInfo.textContent.slice(-9);
+                            sceneNumInfo.textContent = `장면 ${liSceneNumber - 1} ${totalLayer}`;
+                            scene.dataset.sceneNumber = liSceneNumber - 1;
+                            buttons.forEach(button => button.dataset.sceneNumber = liSceneNumber - 1);
+                        }
+                    });
+                    nextSceneNumber--;
+                    alert("삭제되었습니다.");
+                }else if(res.status >= 500){
+                    alert('서버 오류입니다. 잠시 후 다시 시도해 주세요.');
+                }else{
+                    alert('잘못된 요청입니다.');
+                }
+            })
+
+        }
+
+        function createSceneElement(newScene) {
+            const sceneItem = document.createElement("div");
+            sceneItem.classList.add("scene__item");
+            const optionBox = document.createElement("div");
+            optionBox.classList.add("scene-edit__option-box");
+            const option1 = document.createElement("div");
+            option1.classList.add("scene-edit__option");
+            const option1Link = document.createElement("a");
+            option1Link.setAttribute("href", `/mywork/episodes/${episode.id}/scene?sno=${newScene.sceneNumber}`);
+            const option1Button = document.createElement("button");
+            option1Button.textContent = "장면 편집";
+            option1Link.appendChild(option1Button);
+            option1.appendChild(option1Link);
+            optionBox.appendChild(option1);
+            const option2 = document.createElement("div");
+            option2.classList.add("scene-edit__option");
+            const option2Link = document.createElement("a");
+            option2Link.setAttribute("href", "");
+            const option2Button = document.createElement("button");
+            option2Button.textContent = "음성 편집";
+            option2Link.appendChild(option2Button);
+            option2Link.setAttribute("href", `/mywork/episodes/${episode.id}/scene/audio?sno=${newScene.sceneNumber}`);
+            option2.appendChild(option2Link);
+            optionBox.appendChild(option2);
+            const option3 = document.createElement("div");
+            option3.classList.add("scene-edit__option");
+            const option3Button = document.createElement("button");
+            option3Button.textContent = "앞 장면 추가";
+            option3Button.dataset.sceneNumber = newScene.sceneNumber;
+            option3Button.addEventListener("click", function () {
+                addSceneToFront(this);
+            });
+            option3.appendChild(option3Button);
+            optionBox.appendChild(option3);
+            const option4 = document.createElement("div");
+            option4.classList.add("scene-edit__option");
+            const option4Button = document.createElement("button");
+            option4Button.textContent = "장면 삭제";
+            option4Button.dataset.sceneNumber = newScene.sceneNumber;
+            option4Button.addEventListener("click", function () {
+                deleteScene(this);
+            });
+            option4.appendChild(option4Button);
+            optionBox.appendChild(option4);
+            const thumbnail = document.createElement("img");
+            thumbnail.src = "/img/noScene.png";
+            const sceneNum = document.createElement("div");
+            sceneNum.classList.add("scene-num");
+            sceneNum.textContent = `장면 ${newScene.sceneNumber} (Layer 1)`;
+            sceneItem.appendChild(optionBox);
+            sceneItem.appendChild(thumbnail);
+            sceneItem.appendChild(sceneNum);
+            return sceneItem;
+        }
+    </script>
+    <script>
+        function deleteWork(id) {
+            if(!confirm('현재 회차를 삭제하시겠습니까?')) return;
+            fetch(`/mywork/episodes/${episode.id}`, {method: 'DELETE'})
+            .then(res => {
+                if(res.ok){
+                    alert('삭제되었습니다.');
+                    location.href = '/mywork';
+                }else if (res.status >= 500){
+                    alert('서버 오류입니다.');
+                }else{
+                    alert('권한이 없습니다.');
+                }
+            })
+        }
+
+
+        function createEpisodeBoard() {
+            if (!confirm("작품을 게시판에 등록하시겠습니까?")) {
+                return;
+            }else{
+                location.href = `/mywork/episodes/${episode.id}/board`;
+            }
+        }
+
+        function editEpisodeBoard() {
+            location.href = `/mywork/episodes/${episode.id}/board/info`;
+        }
+
+        function deleteEpisodeBoard() {
+            if (!confirm("등록된 게시물을 삭제하시겠습니까?")) {
+                return;
+            }
+
+            fetch(`/mywork/episodes/${episode.id}/board`, {method: 'DELETE'})
+            .then(res => {
+                if(res.ok){
+                    alert('삭제되었습니다.');
+                    location.reload();
+                }else if (res.status >= 500){
+                    alert('서버 오류입니다.');
+                }else{
+                    alert('권한이 없습니다.');
+                }
+            })
+        }
+
+
+
+
+    </script>
+</body>
+</html>

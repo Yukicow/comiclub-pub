@@ -1,0 +1,124 @@
+.board-write__wrap{
+    width: 1280px;
+    padding: 20px 50px;
+    margin: auto;
+}
+
+.board-write__cont{
+    padding: 15px 40px;
+}
+
+.board__topic{
+    padding-left: 10px;
+    font-size: 25px;
+    font-family: 'Nanum Gothic';
+    font-weight: bold;
+    color: rgb(70, 71, 170);
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgb(185, 185, 185);
+}
+
+
+
+
+
+.write__body{
+    background-color: rgb(253, 252, 252);
+    border: 1px solid rgb(202, 202, 202);
+    min-height: 500px;
+    padding: 60px;
+}
+
+
+.write-option__cont{
+    margin-bottom: 80px;
+}
+
+.write-option__box{
+    margin-bottom: 18px;
+}
+
+.option__writer, .option__password{
+    width: 250px;
+    padding: 10px;
+    height: 45px;
+}
+
+.option__title{
+    width: 700px;
+    padding: 10px;
+    height: 45px;
+}
+
+
+
+/* editor */
+.ck.ck-editor {
+    max-width: 100%;
+}
+.ck-editor__editable {
+    height: 500px;
+}
+
+.media{
+    height: fit-content !important;
+    width: 500px !important;
+}
+
+
+
+
+
+.content-input{
+    font-family: 'KimjungchulGothic-Bold';
+    border: 1px solid rgb(214, 214, 214);
+    border-radius: 3px;
+    color: rgb(82, 82, 82);
+    box-sizing: border-box;
+}
+
+.content-input::placeholder{
+    font-family: 'KimjungchulGothic-Bold';
+    font-size: 14px;
+    color: rgb(209, 209, 209);
+}
+
+.content__select{
+    padding: 10px;
+    margin-bottom: 5px;
+    height: 40px;
+    width: 300px;
+    font-size: 15px;
+    background-color: rgb(252, 252, 252);
+    border: 1px solid rgb(212, 212, 212);
+}
+
+
+.warn__info{
+    margin-bottom: 30px;
+    font-size: 14px;
+    color: gray;
+}
+
+.warn__info div{
+    margin-bottom: 5px;
+}
+
+
+
+#submit__button{
+    height: 50px;
+    width: 200px;
+    border: 1px solid rgb(184, 184, 184);
+    background-color: rgb(254, 254, 254);
+    margin-top: 15px;
+    color: gray;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+}
+
+#submit__button:hover{
+    background-color: rgb(239, 239, 239);
+}

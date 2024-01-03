@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/member/follow_list.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+</head>
+<body>
+<div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+    <div th:fragment="main">
+        <div class="follow-list-cont">
+            <h3 class="follow-title">내 구독 목록</h3>
+            <ul class="follow-list">
+                <li class="follow-item" th:each="item : ${followSeries}" th:attr="data-id=${item.id}" th:onclick="|location.href='/series/${item.id}'|">
+                    <div class="thumb-box">
+                        <img th:if="${item.adultOnly}" src="/img/adultOnlyImg.png" class="adult" alt="adult">
+                        <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/img/noImageVer.png'}" class="thumbnail" alt="thumbnail">
+                    </div>
+                    <div class="series-info">
+                        <span class="title" th:text="${item.name}">시리즈명</span>
+                        <span class="author" th:text="${item.writer}">작가</span>
+                        <span class="recent-updated" th:text="|최근 업로드 : ${item.recentUploadedEpisode}화|">최신화</span>
+                    </div>
+                    <div class="option-box">
+                        <button class="unfollow-button" th:onclick="|cancelFollowing(event, ${item.id})|">구독 취소</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+
+        const followList = document.querySelector(".follow-list");
+
+        const totalCount = [[${totalCount}]]; // 데이터베이스에 저장된 전체 개수
+        let followCount = 20; // 현재 보여지고 있는 follow수
+        let isLoading = false;
+
+        const observer = new IntersectionObserver(fetchFollowSeries, {threshold: 1.0});
+        if(totalCount > 20) observer.observe(document.querySelector(".follow-list li:last-child"));
+
+        function fetchFollowSeries(entries, observer) {
+            if(isLoading || !entries[0].isIntersecting) return;
+
+            isLoading = true;
+            fetch(`/member/follow-list?offset=${followCount}`)
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    result.data.forEach(item => {
+                        createSeries(item);
+                    });
+                    followCount = totalCount > followCount + 20 ? followCount + 20 : totalCount;
+                    observer.disconnect();
+                    if(totalCount > followCount) observer.observe(document.querySelector(".follow-list li:last-child"));
+                }else{
+                    alert("서버 오류입니다.");
+                }
+                isLoading = false;
+            });
+        }
+
+        function createSeries(item) {
+            // <li> 요소 생성
+            const listItem = document.createElement('li');
+            listItem.classList.add('follow-item');
+            listItem.dataset.id = item.id;
+            listItem.onclick = `location.href='/board/series/${item.id}'`;
+
+            // <div class="thumb-box"> 생성
+            const thumbBox = document.createElement('div');
+            thumbBox.classList.add('thumb-box');
+
+            // <img> 요소 생성 (adult)
+            if(item.adultOnly){
+                const adultImg = document.createElement('img');
+                adultImg.src = '/img/adultOnlyImg.png';
+                adultImg.classList.add('adult');
+                thumbBox.appendChild(adultImg);
+            }
+
+            // <img> 요소 생성 (thumbnail)
+            const thumbnailImg = document.createElement('img');
+            thumbnailImg.src = item.thumbnailUrl ? item.thumbnailUrl : '/img/noImageVer.png';
+            thumbnailImg.classList.add('thumbnail');
+
+            // thumbBox에 이미지 추가
+            thumbBox.appendChild(thumbnailImg);
+
+            // <div class="series-info"> 생성
+            const seriesInfo = document.createElement('div');
+            seriesInfo.classList.add('series-info');
+
+            // <span class="title"> 생성
+            const titleSpan = document.createElement('span');
+            titleSpan.classList.add('title');
+            titleSpan.textContent = item.name;
+
+            // <span class="author"> 생성
+            const authorSpan = document.createElement('span');
+            authorSpan.classList.add('author');
+            authorSpan.textContent = item.writer;
+
+            // <span class="recent-updated"> 생성
+            const recentUpdatedSpan = document.createElement('span');
+            recentUpdatedSpan.classList.add('recent-updated');
+            recentUpdatedSpan.textContent = `최근 업로드: ${item.recentUploadedEpisode}화`;
+
+            // seriesInfo에 span 요소들 추가
+            seriesInfo.appendChild(titleSpan);
+            seriesInfo.appendChild(authorSpan);
+            seriesInfo.appendChild(recentUpdatedSpan);
+
+            // <div class="option-box"> 생성
+            const optionBox = document.createElement('div');
+            optionBox.classList.add('option-box');
+
+            // <button> 요소 생성
+            const unfollowButton = document.createElement('button');
+            unfollowButton.classList.add('unfollow-button');
+            unfollowButton.textContent = '구독 취소';
+            unfollowButton.onclick = function(event) {
+                cancelFollowing(event, item.id);
+            };
+
+            // optionBox에 버튼 추가
+            optionBox.appendChild(unfollowButton);
+
+            // listItem에 thumbBox, seriesInfo, optionBox 추가
+            listItem.appendChild(thumbBox);
+            listItem.appendChild(seriesInfo);
+            listItem.appendChild(optionBox);
+
+            followList.append(listItem);
+        }
+
+        function cancelFollowing(e, id){
+            e.stopPropagation();
+
+            fetch(`/series/${id}/follow`, {method: 'POST'})
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    document.querySelector(`.follow-item[data-id='${id}']`).remove();
+                    followCount--;
+                    totalCount--;
+                }else{
+                    alert("서버 오류입니다.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

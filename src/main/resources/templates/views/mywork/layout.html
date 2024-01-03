@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <th:block th:fragment="work_layout_css">
+        <link rel="stylesheet" href="/css/mywork/layout.css">
+    </th:block>
+</head>
+<body>
+    <th:block th:fragment="work_layout(main)">
+        <div class="working-cont__wrap">
+            <div class="flex grow justify-content-center">
+                <div class="working-cont">
+                    <div class="flex" style="flex-direction: column;align-items: center;" th:insert="${main}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

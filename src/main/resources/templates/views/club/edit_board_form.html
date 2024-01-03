@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/club/write_board_form.css">
+    <div th:replace="~{views/club/layout :: common_css}"></div>
+    <div th:replace="~{views/common_layout :: footer_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{::footer})}">
+
+        <div class="board-write__wrap" th:fragment="main" >
+            <div class="board-write__cont">
+                <div class="board__head">
+                    <div class="board__topic"><a th:href="|/clubs/${club.id}|" th:text="${club.clubName}"></a></div>
+                </div>
+                <div class="write__body" th:with="auth=${#authentication.principal != 'anonymousUser'}, principal=${auth ? #authentication.principal : _ }">
+                    <form id="board__form" th:object="${board}">
+                        <div class="write-option__cont">
+                            <div class="write-option__box">
+                                <select id="topic-selector" class="content__select" th:field="*{topic}">
+                                    <option value="" disabled selected>게시물 주제</option>
+                                    <option value="NOTICE" th:if="${auth && principal.hasRole('ADMIN')}">공지</option>
+                                    <option value="FREE">자유</option>
+                                    <option value="FREEWORK">작품</option>
+                                    <option value="QUESTION">질문</option>
+                                </select>
+                            </div>
+                            <div class="write-option__box">
+                                <select id="rate-selector" class="content__select" th:field="*{adultOnly}">
+                                    <option value="" disabled selected>게시물 이용 등급</option>
+                                    <option value="false">전체</option>
+                                    <option value="true" th:if="${auth && #authentication.principal.adult}">성인</option>
+                                </select>
+                                <div class="warn__info">
+                                    ㆍ성인 게시물이 아닌 게시물에 성인 컨텐츠를 게시할 경우 예고 없이 삭제될 수 있습니다.
+                                </div>
+                            </div>
+                            <div class="link-freeWork write-option__box">
+                                <button id="freeWork-linker" class="link-work__button" th:if="${auth}">내 작품 연결하기</button>
+                            </div>
+                            <div class="write-option__box">
+                                <input th:id="writer-input" th:field="*{writer}" th:readonly="${auth}"
+                                       class="option__writer content-input" type="text" maxlength="15" placeholder="작성자를 입력해 주세요." >
+                                <input th:id="password-input" th:name="password" th:readonly="${auth}" th:value="${auth ? '1234' : board.password}"
+                                       class="option__password content-input" type="password" maxlength="16" placeholder="비밀번호를 입력해 주세요.">
+                            </div>
+                            <div class="write-option__box">
+                                <input id="title-input" class="option__title content-input" th:field="*{title}" type="text" maxlength="50" placeholder="제목을 입력해 주세요." >
+                            </div>
+                            <div class="warn__info">
+                                <div>ㆍ타인에게 불쾌감을 형성하는 게시물은 예고 없이 삭제될 수 있습니다.</div>
+                                <div>ㆍ저작권을 침해하는 게시물은 예고 없이 삭제될 수 있으며 법적 책임을 물을 수 있습니다.</div>
+                            </div>
+                        </div>
+                        <div class="write-content__cont">
+                            <textarea id="editor" class="content__area"></textarea>
+                        </div>
+                        <div style="height: 40px;">
+                            <button id="submit__button">수정하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer th:replace="~{views/common_layout :: footer_layout}" th:fragment="footer"></footer>
+    </div>
+    <script src="/js/editor/build/ckeditor.js"></script>
+    <script th:inline="javascript">
+
+        const clubId = [[${clubId}]];
+        const boardId = [[${boardId}]];
+
+        (function() {
+
+            ClassicEditor
+            .create( document.querySelector( '#editor' ),{
+                mediaEmbed: {
+                        previewsInData:true
+                    },
+                }
+            )
+            .then( newEditor => {
+                ckeditor = newEditor;
+                ckeditor.setData([[${board.content}]]);
+            })
+            .catch( error => {
+            console.error( error );
+            });
+
+
+            const boardForm = document.getElementById('board__form');
+            const topic = document.getElementById('topic-selector');
+            const rate = document.getElementById('rate-selector');
+            const writer = document.getElementById('writer-input');
+            const password = document.getElementById('password-input');
+            const title = document.getElementById('title-input');
+            const editor = document.getElementById('editor');
+            const submitButton = document.getElementById('submit__button');
+            const validFunctionArray = [validateTopic, validateRate, validateWriter, validatePassword, validateTitle];
+            const clubId = "[[${club.id}]]";
+            let valid = true;
+            let ckeditor;
+
+
+            boardForm.addEventListener("submit", e => {
+                e.preventDefault();
+                valid = true;
+                validateChain();
+                if(valid){
+                    const payload = new FormData(boardForm);
+                    payload.append('content', `${ckeditor.getData()}`);
+                    fetch(`/clubs/${clubId}/boards/${boardId}`, {
+                        method: "PATCH",
+                        body: payload
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if(result.code === "SUCCESS") {
+                            alert('게시글이 수정되었습니다.');
+                            location.href = `/clubs/${clubId}/boards/${boardId}`;
+                        }else if(result.code === "NOT_VALID") {
+                            alert('잘못된 요청입니다.');
+                        }else{
+                            alert('서버 오류입니다.');
+                        }
+                    })
+
+                }
+            })
+
+
+            function validateChain() {
+                for (let i = 0; i < validFunctionArray.length; i++) {
+                    validFunctionArray[i]();
+                    if(!valid) break;
+                }
+            }
+
+            function validateTopic() {
+                const value = topic.options[topic.selectedIndex].value;
+                if(!value) {
+                    alert("게시물 주제를 선택해 주세요.");
+                    topic.focus();
+                    valid = false;
+                }
+            }
+
+            function validateRate() {
+                const value = rate.options[rate.selectedIndex].value;
+                if(!value) {
+                    alert("게시물 이용등급을 선택해 주세요.");
+                    rate.focus();
+                    valid = false;
+                }
+            }
+
+            function validateWriter() {
+                if(writer.value.length < 2) {
+                    alert("작성자를 입력해 주세요. (최소2자, 최대 15자)");
+                    writer.focus();
+                    valid = false;
+                }
+            }
+
+            function validatePassword() {
+                if(password.value.length < 4) {
+                    alert("비밀번호를 입력해 주세요. (최소 4자, 최대 16자)");
+                    password.focus();
+                    valid = false;
+                }
+            }
+
+            function validateTitle() {
+                if(title.value.length < 1) {
+                    alert("제목을 입력해 주세요.");
+                    title.focus();
+                    valid = false;
+                }
+            }
+        })()
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/add_series_work.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+       <div th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <div class="info-form-cont" th:fragment="content">
+                <div class="thumb-box flex">
+                    <div class="thumb__preview">
+                        <img>
+                        <div class="size-shower none">현재 파일 사이즈</div>
+                    </div>
+                    <div style="margin: auto 0;">
+                        <div class="thumb__head">작품 이미지</div>
+                        <div class="thumb__body">
+                            <div class="thumb__info">
+                                ㆍ작품을 소개할 수 있는 이미지를 올려 주세요.<br>
+                                ㆍ이미지는 최대 1MB까지 허용하며 자동으로 WEBP형식으로 압축됩니다..<br>
+                                ㆍ이미지의 크기에는 제한이 없지만 가로ㆍ세로 2 : 3 비율을 추천합니다.<br>
+                            </div>
+                        </div>
+                        <div>
+                            <input id="thumb" type="file" accept="image/*">
+                            <label for="thumb" class="thumb-file__label">파일 업로드</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-form__content">
+                    <form id="auto-form" th:object="${series}" onsubmit="return false">
+                        <div class="content">
+                            <div class="content__head">작품명</div>
+                            <div class="content__body">
+                                <input class="content-wname content__input" th:field="*{name}" type="text" maxlength="50" placeholder="작품 이름을 입력해 주세요.">
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="content__head">줄거리</div>
+                            <div class="content__body">
+                                <div class="content-desc content__input">
+                                    <textarea spellcheck="false" th:field="*{description}" placeholder="작품의 줄거리를 입력해 주세요. (최대 250자)"></textarea>
+                                    <div class="max-desc">
+                                        <span class="current-letter">0</span>
+                                        <span>/</span>
+                                        <span>250</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content grow">
+                            <div class="content__head">이용 등급</div>
+                            <div class="content__body">
+                                <div>
+                                    <select class="content__select" th:field="*{adultOnly}" style="width: 100%;">
+                                        <option value="false">전체</option>
+                                        <option value="true">성인</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content grow">
+                            <div class="content__head">공개 여부</div>
+                            <div class="content__body">
+                                <div>
+                                    <select class="content__select" th:field="*{pub}" style="width: 100%;">
+                                        <option value="true" selected>공개</option>
+                                        <option value="true">비공개</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="content">
+                        <div class="content__head">태그</div>
+                        <div class="content__body">
+                            <input class="content-tag content__input" type="text" maxlength="10" placeholder="원하는 태그를 입력 후 엔터를 눌러 주세요." >
+                        </div>
+                        <ul class="tag-list flex"></ul>
+                        <div class="content__info">ㆍ태그는 각각 최대 10자, 최대 10개까지 등록 가능합니다.</div>
+                    </div>
+                    <div class="flex justify-content-center" style="margin: 70px 0px 40px 0px;">
+                        <button type="button" class="submit-button">등록하기</button>
+                    </div>
+                </div>
+            </div>
+
+       </div>
+    </div>
+
+
+    <script src="/js/webp_converter.js"></script>
+    <script>
+        // Textarea
+        const description = document.querySelector(`.content-desc textarea`);
+        const currentLetter = document.querySelector(`.current-letter`);
+
+        // Tag
+        let tagIndex = 0;
+        const tagValueMap = new Map();
+        const contentTag = document.querySelector(`.content-tag`);
+        const tagList = document.querySelector(`.tag-list`);
+
+        // Thumbnail
+        let webp = null;
+        const thumbnailInput = document.getElementById(`thumb`);
+        const thumbnail = document.querySelector(`.thumb__preview img`);
+        const sizeShower = document.querySelector(`.size-shower`);
+
+        const submitButton = document.querySelector(`.submit-button`);
+
+
+        description.addEventListener("input", () => {
+            let letterLength = description.value.length;
+            if (letterLength > 250) {
+                description.value = description.value.slice(0, 255);
+                letterLength = 250;
+            }
+            currentLetter.innerText = `${letterLength}`;
+        });
+
+
+
+        function deleteTagFunction(index, tag) {
+            return () => {
+                tag.remove();
+                tagValueMap.delete(index);
+            };
+        }
+
+        thumbnailInput.addEventListener("change", async () => {
+            const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+            if(!allowedExtensions.includes(thumbnailInput.value.split('.').pop().toLowerCase())){
+                alert('이미지 파일이 아닙니다. 올바른 파일을 선택하세요.');
+                return;
+            }
+
+            webp = await createWebpImg(thumbnailInput.files[0]);
+            const reader = new FileReader();
+            reader.onload = function () {
+                thumbnail.src = reader.result;
+                sizeShower.classList.remove("none");
+                sizeShower.innerText = `업로드될 파일 사이즈 : ${(webp.size / (1024 *  1024)).toFixed(3)}MB`;
+            };
+            reader.readAsDataURL(webp);
+        });
+
+        contentTag.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && contentTag.value && tagValueMap.size < 10) {
+                const li = document.createElement("li");
+                const div = document.createElement("div");
+                const span = document.createElement("span");
+                const button = document.createElement("button");
+                const tagValue = `#${contentTag.value}`;
+                contentTag.value = "";
+                tagValueMap.set(++tagIndex, tagValue);
+                div.classList.add("tag-item");
+                button.classList.add("tag-delete-button");
+                button.addEventListener("click", deleteTagFunction(tagIndex, li));
+                span.innerText = tagValue;
+                button.innerText = "X";
+                div.appendChild(span);
+                div.appendChild(button);
+                li.appendChild(div);
+                tagList.prepend(li);
+            }
+        });
+
+
+        submitButton.addEventListener("click", (e) =>{
+            e.preventDefault();
+
+            const name = document.querySelector(`.content__input[name='name']`);
+            if(name.value.length < 1) {
+                alert('작품명을 입력해 주세요.');
+                name.focus();
+                return;
+            }
+
+            const formData = new FormData(document.getElementById('auto-form'));
+            tagString = "";
+            tagValueMap.forEach(tag => { tagString = tagString + tag });
+            tagString = tagString.substring(1);
+
+            formData.append("tag", tagString);
+            if(webp) formData.append("thumbnail", webp, "thumbnail.webp");
+
+            fetch(`/mywork/series`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200) {
+                    alert('등록이 완료되었습니다.');
+                    location.href = result.data;
+                }else if(result.status >= 500) alert('서버 오류입니다.');
+                else alert('입력값을 다시 확인해 주세요.');
+            })
+        });
+    </script>
+
+</body>
+</html>

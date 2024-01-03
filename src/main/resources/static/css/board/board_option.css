@@ -1,0 +1,86 @@
+
+
+
+
+
+.board-option-cont{
+    width: 800px;
+    margin: 100px auto;
+}
+
+
+
+.paging-cont{
+    justify-content: center;
+}
+
+.page-button{
+    background-color: rgb(253, 253, 253);
+    border: 1px solid rgb(224, 224, 224);
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.page-button:hover{
+    background-color: rgb(245, 245, 245);
+}
+
+.page-on{
+    background-color: rgb(238, 238, 238) !important;
+}
+
+
+
+.search-bar{
+    margin-top: 50px;
+    justify-content: center;
+}
+
+.search-box{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search__option{
+    width: 130px;
+    height: 49px;
+    padding: 0px 10px;
+    border: 2px solid rgb(119, 119, 119);
+    border-radius: 5px;
+    color: rgb(67, 67, 67);
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.search-bar input{
+    width: 320px;
+    height: 25px;
+    padding: 10px 40px 10px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+    border: 2px solid rgb(119, 119, 119);
+    border-radius: 5px;
+}
+
+
+.search-button{
+    position: absolute;
+    box-sizing: border-box;
+    top: 0;
+    right: 0;
+    padding-right: 10px;
+    height: 100%;
+    cursor: pointer;
+    background: none;
+    border: none;
+    vertical-align: top;
+}
+
+.search-button img{
+    height: 20px;
+}

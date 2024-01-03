@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>성인 인증</title>
+    <link rel="stylesheet" href="/css/adult_only.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/font.css">
+</head>
+<body>
+<div class="wrap">
+    <main class="main" th:with="auth=${#authentication.principal != 'anonymousUser'}, principal=${auth ? #authentication.principal : _ }">
+        <div style="display: flex;">
+            <img class="adult-img" src="/img/adultOnlyImg.png">
+            <div class="content-box">
+                <h2>성인 인증</h2>
+                <p class="content__notice">
+                    · 일부 컨텐츠는 성인 인증 후에 열람이 가능합니다.<br>
+                </p>
+                <p class="content__state">
+                    로그인 상태 : [ <span th:text="${auth ? '로그인' : '비로그인'}" th:class="${auth ? 'certified' : _}">비로그인</span> ]<br>
+                    성인 인증 : [ <span th:text="${auth ? '인증' : '미인증'}" th:class="${auth && principal.adult ? 'certified' : _}">미인증</span> ]
+                </p>
+            </div>
+        </div>
+        <div class="option-box">
+            <button onclick="window.history.back()">뒤로가기</button>
+            <button th:if="${auth && principal.adult}" onclick="setViewAdult()">성인물 보기</button>
+            <button th:if="${auth && !principal.adult}">성인 인증하기(미구현)</button>
+        </div>
+    </main>
+</div>
+
+<script>
+
+        function setViewAdult() {
+            fetch(`/member/view-adult`, {method: 'PATCH'})
+            .then(res => {
+                if(res.ok)
+                    location.reload();
+                else
+                    alert("서버 오류입니다.");
+            })
+        }
+    </script>
+</body>
+</html>

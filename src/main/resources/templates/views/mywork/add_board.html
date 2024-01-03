@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/add_work_board.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+       <div th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <div class="info-form-cont" th:fragment="content">
+                <form id="info-form" th:object="${form}">
+                    <div class="info-form__content">
+                        <div class="content">
+                            <div class="content__head">제목</div>
+                            <div class="content__body">
+                                <input class="content-title content__input" th:field="*{title}" type="text" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="content__head">작가의 글</div>
+                            <div class="content__body">
+                                <div class="author-word content__input">
+                                    <textarea spellcheck="false" th:field="*{authorWord}" placeholder="작품을 보는 독자들에게 한 마디. (최대 100자)"></textarea>
+                                    <div class="max-desc">
+                                        <span class="current-letter">0</span>
+                                        <span>/</span>
+                                        <span>100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content grow">
+                            <div class="content__head">공개 여부</div>
+                            <div class="content__body">
+                                <div>
+                                    <select class="content__select" th:field="*{isPublic}" style="width: 100%;">
+                                        <option value="true">공개</option>
+                                        <option value="false">비공개</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content grow">
+                            <div class="content__head">이용 등급</div>
+                            <div class="content__body">
+                                <div>
+                                    <select class="content__select" th:field="*{adultOnly}" style="width: 100%;" >
+                                        <option value="false">전체</option>
+                                        <option value="true">성인</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-content-center" style="margin: 70px 0px 40px 0px;">
+                            <button class="submit-button">등록하기</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+       </div>
+    </div>
+    <script>
+        (function () {
+            // Textarea
+            const authorWord = document.querySelector(`.author-word textarea`);
+            const currentLetter = document.querySelector(`.current-letter`);
+
+            // Submit
+            const form = document.getElementById('info-form');
+            const submitButton = document.querySelector(`.submit-button`);
+
+            authorWord.addEventListener("input", () => {
+                let letterLength = authorWord.value.length;
+                if (letterLength > 100) {
+                    authorWord.value = authorWord.value.slice(0, 100);
+                    letterLength = 100;
+                }
+                currentLetter.innerText = `${letterLength}`;
+            });
+
+            submitButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                fetch(location.href, {method: 'POST', body: formData})
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 200) {
+                        alert('등록이 완료되었습니다.');
+                        location.href = result.data;
+                    }
+                    else if(result.status >= 500) alert('서버 오류입니다.');
+                    else alert('입력값을 다시 확인해 주세요');
+                });
+            })
+        }());
+    </script>
+</body>
+</html>

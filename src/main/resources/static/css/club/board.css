@@ -1,0 +1,195 @@
+
+
+.club__info{
+    font-size: 28px;
+    font-family: 'Nanum Gothic';
+    font-weight: bold;
+    color: rgb(70, 71, 170);
+    margin-bottom: 20px;
+}
+
+.board__option{
+    margin-bottom: 10px;
+}
+
+.topic-button{
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(194, 194, 194);
+    border-bottom: 2px solid rgb(153, 153, 153);
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+    width: 100px;
+    height: 40px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.topic-button:hover{
+    border-bottom: 2px solid rgb(53, 86, 156);
+}
+
+
+.on{
+    /* background-color:rgb(32, 133, 86); */
+    border-bottom: 2px solid rgb(53, 86, 156);
+}
+
+
+.write-board__button{
+    float: right;
+    background-color: rgb(252, 252, 252);
+    border: 1px solid rgb(69, 92, 170);
+    border-radius: 5px;
+    box-shadow: 1px 2px 2px gray;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+    width: 80px;
+    height: 35px;
+    cursor: pointer;
+}
+
+
+
+
+.list-head{
+    border-top: 3px solid rgb(151, 151, 151);
+    border-bottom: 1px solid rgb(216, 216, 216);
+    display: table;
+    width: 100%;
+    padding: 20px 0;
+}
+
+.list-head span{
+    display: table-cell;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+.notice__list{
+    overflow: hidden;
+    max-height: 108px;
+}
+
+.notice__list li{
+    background-color: rgb(243, 243, 243);
+    font-weight: bold;
+}
+
+#notice__shower{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    cursor: pointer;
+    color: rgb(180, 180, 180);
+    font-size: 14px;
+    font-weight: bold;
+    background-color: rgb(243, 243, 243);
+    border-bottom: 1px solid rgb(216, 216, 216);
+}
+
+#notice__shower:hover{
+    color: rgb(158, 0, 0);
+}
+
+.normal__list li :hover{
+    background-color: rgb(243, 243, 243);
+}
+
+.list-item{
+    display: table;
+    width: 100%;
+    table-layout: fixed
+}
+
+
+.list-item div{
+    display: table-cell;
+    text-align: center;
+    height: 25px;
+    vertical-align: middle;
+    padding: 5px 0;
+    border-bottom: 1px solid rgb(209, 209, 209);
+    font-size: 13px;
+    font-family: 'Nanum Gothic';
+}
+
+
+.list-item .b-title{ /* .list-item을 명시해야 table의 head의 b-title에는 적용 안 됨 */
+    text-align: left;
+    padding-left: 20px;
+    font-size: 14px;
+}
+
+.total-comment{
+    font-size: 13px;
+    color: gray;
+}
+
+
+.b-num{
+    width: 90px;
+}
+
+.b-topic{
+    width: 60px;
+}
+
+.b-writer{
+    width: 120px;
+}
+
+.b-date{
+    width: 80px;
+}
+
+.b-view{
+    width: 80px;
+}
+
+.b-like{
+    width: 60px;
+}
+
+.b-title{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.b-title img{
+    height: 17px;
+}
+
+
+
+
+
+
+
+.paging-cont{
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+    gap: 5px;
+}
+
+.page-button{
+    height: 30px;
+    min-width: 30px;
+    font-size: 14px;
+    background-color: rgb(252, 252, 252);
+    border: 1px solid rgb(165, 165, 165);
+    cursor: pointer;
+}
+
+.page-button:hover{
+    background-color: rgb(236, 236, 236);
+}
+

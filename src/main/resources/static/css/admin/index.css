@@ -1,0 +1,286 @@
+
+
+
+#wrap{
+    display: flex;
+    height: 100vh;
+}
+
+
+
+
+
+
+#side-nav{
+    width: 20%;
+    border-right: 1px solid rgb(122, 122, 122);
+    background-color: rgb(51, 51, 51);
+}
+
+
+.nav-cont{
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-box{
+    padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(204, 212, 214);
+    cursor: pointer;
+    height: 80px;
+}
+
+.logo-box img{
+    height: 50px;
+}
+
+.nav-cont button{
+    background-color: rgb(51, 51, 51);
+    height: 3.5rem;
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'NanumSquareNeo-Variable';
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+}
+
+.nav-cont button:hover{
+    background-color: rgb(94, 94, 94);
+}
+
+.nav-cont:first-child::before{
+    content: "";
+}
+
+.selected{
+    background-color: rgb(94, 94, 94) !important;
+}
+
+
+
+
+
+#main-wrap{
+    width: 80%;
+}
+
+main{
+    width: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 2% 10%;
+    position: relative;
+}
+
+
+
+
+
+/* SearchOption */
+
+
+.search-bar{
+    margin: 20px 0px;
+}
+
+.search-box{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.club-selector{
+    width: 200px !important;
+}
+
+.search-box select{
+    width: 100px;
+    height: 35px;
+    padding: 0px 10px;
+    border: 2px solid rgb(0, 0, 0);
+    border-radius: 5px;
+    color: rgb(67, 67, 67);
+    margin-right: 15px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.search-bar input{
+    width: 250px;
+    height: 11px;
+    padding: 10px 40px 10px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+    border: 2px solid rgb(0, 0, 0);
+    border-radius: 5px;
+}
+
+
+.search-button{
+    position: absolute;
+    box-sizing: border-box;
+    top: 0;
+    right: 0;
+    padding-right: 10px;
+    height: 100%;
+    cursor: pointer;
+    background: none;
+    border: none;
+    vertical-align: top;
+}
+
+.search-button img{
+    height: 20px;
+}
+
+
+
+
+
+/* Board */
+
+.list-head{
+    border-top: 3px solid rgb(0, 0, 0);
+    border-bottom: 1px solid rgb(0, 0, 0);
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    padding: 20px 0;
+}
+
+.list-head span{
+    display: table-cell;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+.list-item{
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+
+.list-item > div{
+    display: table-cell;
+    text-align: center;
+    height: 35px;
+    vertical-align: middle;
+    padding: 5px 0;
+    border-bottom: 1px solid rgb(0, 0, 0);
+    font-size: 13px;
+    font-family: 'Nanum Gothic';
+}
+
+
+.list-item .b-title{ /* .list-item을 명시해야 table의 head의 b-title에는 적용 안 됨 */
+    text-align: left;
+    padding-left: 20px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.total-comment{
+    font-size: 13px;
+    color: gray;
+}
+
+
+.b-num{
+    width: 90px;
+}
+
+.b-topic{
+    width: 60px;
+}
+
+.b-writer{
+    width: 120px;
+}
+
+.b-date{
+    width: 80px;
+}
+
+.b-view{
+    width: 80px;
+}
+
+.b-like{
+    width: 60px;
+}
+
+.b-pub{
+    width: 90px;
+}
+
+.b-delete{
+    width: 80px;
+}
+
+.b-delete button, .b-pub button{
+    height: 25px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: rgb(90, 104, 173);
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+.b-title{
+    width: 40%;
+}
+
+.b-title div{
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.b-title img{
+    height: 17px;
+}
+
+.normal-list li:hover{
+    background-color: rgb(243, 243, 243);
+}
+
+
+
+
+
+
+/* Paging */
+
+.paging-cont{
+    margin-top: 50px;
+    justify-content: center;
+}
+
+.page-button{
+    background-color: rgb(253, 253, 253);
+    border: 1px solid rgb(224, 224, 224);
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.page-button:hover{
+    background-color: rgb(245, 245, 245);
+}
+
+.page-on{
+    background-color: rgb(238, 238, 238) !important;
+}

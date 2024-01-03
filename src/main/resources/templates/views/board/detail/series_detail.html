@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/board/detail/series_detail.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/common_layout :: footer_css}"></div>
+
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{::footer})}">
+        <th:block th:replace="~{views/board/detail/layout :: board_detail_layout(~{::content})}" th:fragment="main">
+
+           <div class="detail__cont" th:fragment="content">
+               <div class="series-head">
+                   <div class="series-info-cont flex">
+                       <img th:src="${series.thumbnailUrl != null ? series.thumbnailUrl : '/img/noImageVer.png'}" class="series__thumbnail">
+                       <div class="series-info-cont__detail">
+                           <div class="detail__head">
+                               <div class="detail__title">
+                                   <img th:if="${series.adultOnly}" src="/img/adultOnlyImg.png" class="adult">
+                                   <span th:text="${series.name}">시리즈명</span>
+                               </div>
+                               <div class="detail__writer">
+                                   <span>등록 : </span>
+                                   <span class="writer" th:text="${series.writer}">작성자</span>
+                               </div>
+                               <div class="detail-option flex">
+                                   <div class="option__box">
+                                       <img src="/img/viewerImg.png">
+                                       <div th:text="${#numbers.formatInteger(series.totalView, 1, 'COMMA')}">총 조회수</div>
+                                   </div>
+                                   <div class="option__box">
+                                       <img src="/img/followImg.png">
+                                       <div th:text="${#numbers.formatInteger(series.totalFollower, 1, 'COMMA')}">총 팔로워</div>
+                                   </div>
+                                   <div class="option__box">
+                                       <img src="/img/likeImg.png">
+                                       <div th:text="${#numbers.formatInteger(series.totalLike, 1, 'COMMA')}">총 좋아요</div>
+                                   </div>
+                                   <div class="option__box">
+                                       <span>Ep.</span>
+                                       <div th:text="${series.totalEpBoard}">총 에피소드</div>
+                                   </div>
+                               </div>
+                               <div class="act-button-box flex">
+                                   <button class="follow-button" th:classappend="${followed ? 'followed' : _ }" th:text="${followed ? '구독취소' : '구독하기' }"onclick="followSeries()">구독</button>
+                                   <button class="view-button" th:onclick="|location.href='/series/${series.id}/epBoards?no=1'|">첫화보기</button>
+                               </div>
+                           </div>
+                           <div class="detail__body">
+                               <div class="detail__desc" th:text="${series.description}">줄거리</div>
+                               <div class="more-desc">더 보기</div>
+                               <div class="detail__tag">
+                                   <span>#관련 태그</span>
+                                   <div class="tag__box flex">
+                                       <div class="tag" th:each="tag : ${series.tag}" th:text="|#${tag}|">태그</div>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               <div class="series-body flex">
+                   <div class="ep-cont">
+                       <div class="ep__head">
+                           <div>
+                               <span>작품 회차</span>
+                               <div class="ep__info" th:text="|총 ${series.totalEpBoard}화|">총 에피소드</div>
+                           </div>
+                       </div>
+                       <div class="ep__body">
+                           <ul class="ep__list">
+                               <li th:each="board : ${page.content}" th:with="index=${page.number}">
+                                   <div class="ep__item" th:onclick="|location.href='/series/${series.id}/epBoards?no=${board.episodeNumber}'|">
+                                       <div class="ep__thumb">
+                                           <img th:src="${board.thumbnailUrl != null ? board.thumbnailUrl : '/img/noImageHor.png'}">
+                                       </div>
+                                       <div class="ep__title">
+                                           <img th:if="${board.adultOnly}" src="/img/adultOnlyImg.png" class="ep__adult">
+                                           <span th:text="|${index * 15 + boardStat.count}화. ${board.title}|">제목</span>
+                                       </div>
+                                   </div>
+                               </li>
+                           </ul>
+                       </div>
+                       <div class="flex justify-content-center" style="margin-top: 35px;">
+                           <th:block th:with="
+                                 totalPage=${page.totalPages},
+                                 pageNumber=${page.number},
+                                 pageSize=${page.size},
+                                 pageIndex=${pageNumber / 10 + 1},
+                                 startPage=${pageIndex * 10 - 9},
+                                 hasNextIndex=${totalPage - startPage >= 10},
+                                 hasPrevIndex=${startPage - 10 >= 1},
+                                 endPage=${hasNextIndex ? (pageIndex) * 10 : totalPage}"
+                           >
+                               <div class="paging-cont" th:if="${startPage < endPage}">
+                                   <button class="prev-page-button page-button" th:if="${hasPrevIndex}" th:onclick="|goPage(${startPage - 10})|">&lt;</button>
+                                   <th:block th:if="${totalPage != 0}" th:each="num : ${#numbers.sequence(startPage,endPage)}">
+                                       <button class="page-button" th:classappend="${num == pageNumber + 1} ? 'page-on' : _" th:text="${num}" th:onclick="|goPage(${num})|"></button>
+                                   </th:block>
+                                   <button class="next-page-button page-button" th:if="${hasNextIndex}" th:onclick="|goPage(${endPage + 1})|">&gt;</button>
+                               </div>
+                           </th:block>
+                       </div>
+                   </div>
+                   <div class="recommend-cont grow">
+                       <div class="recommend-cont__box">
+                           <div class="recommend-cont__head">
+                               <div>작가의 다른 연재작품</div>
+                           </div>
+                           <div class="recommend-cont__body">
+                               <div class="other-work flex" th:each="sideSeries : ${writerSeries}" th:onclick="|location.href='/series/${sideSeries.id}'|">
+                                   <img class="series-img" th:src="${sideSeries.thumbnailUrl != null ? sideSeries.thumbnailUrl : '/img/noImageVer.png'}">
+                                   <div class="other-work__info-box flex" style="flex-direction: column;margin-left: 20px;">
+                                       <div class="other-work__title grow">
+                                           <img th:if="${sideSeries.adultOnly}" src="/img/adultOnlyImg.png">
+                                           <span th:text="${sideSeries.name}">시리즈명</span>
+                                       </div>
+                                       <div class="other-work__tag"><span th:each="tag : ${sideSeries.tag}" th:text="|#${tag} |">태그</span></div>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                       <div class="recommend-cont__box">
+                           <div class="recommend-cont__head">
+                               <div>작가의 자유작품</div>
+                           </div>
+                           <div class="recommend-cont__body">
+                               <div class="other-work flex" th:each="post : ${writerFreeWorkBoards}" th:onclick="|location.href='/board/free/${post.id}'|">
+                                   <img class="work-img" th:src="${post.thumbnailUrl != null ? post.thumbnailUrl : '/img/noImageHor.png'}">
+                                   <div class="other-work__info-box flex" style="flex-direction: column;margin-left: 20px;">
+                                       <div class="other-work__title grow">
+                                           <img th:if="${post.adultOnly}" src="/img/adultOnlyImg.png">
+                                           <span th:text="${post.title}">제목</span>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+        </th:block>
+        <footer th:replace="~{views/common_layout :: footer_layout}" th:fragment="footer"></footer>
+    </div>
+
+    <script th:inline="javascript">
+
+        const followButton = document.querySelector(".follow-button");
+
+        const seriesDesc = document.querySelector('.detail__desc');
+        const moreDescButton = document.querySelector('.more-desc');
+
+
+
+        moreDescButton.addEventListener("click", (event) => {
+            seriesDesc.classList.toggle("expend");
+
+            const text = event.target.textContent;
+            if(text === "접기") event.target.textContent = "더 보기";
+            else event.target.textContent = "접기";
+        });
+
+        function goPage(pageNum) {
+            location.href = `/series/[[${series.id}]]?page=${pageNum}`;
+        }
+
+        function followSeries(){
+            fetch(location.href + `/follow`, {method: 'POST'})
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    if(result.data === "FOLLOW"){
+                        followButton.classList.add("followed");
+                        followButton.textContent = "구독취소";
+                    }else{
+                        followButton.classList.remove("followed");
+                        followButton.textContent = "구독하기";
+                    }
+                }else if(result.status === 401){
+                    alert("로그인 후 이용 가능합니다");
+                }else{
+                    alert("서버 오류입니다.");
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

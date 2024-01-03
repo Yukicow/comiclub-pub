@@ -1,0 +1,102 @@
+
+
+
+
+.board-cont{
+    width: 1280px;
+    padding: 50px;
+    margin: auto;
+}
+
+
+
+
+.order-option-bar{
+    display: flex;
+    box-sizing: border-box;
+    height: 70px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+.order-button{
+    flex: 3;
+    background-color: white;
+    border: 0;
+    font-size: 18px;
+    font-family: 'Gothic';
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.on{
+    color: rgb(255, 157, 28);
+    border-bottom: 3px solid rgb(255, 157, 28);
+}
+
+
+
+
+.work-cont{
+    margin: auto;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+}
+
+.work-list__area{
+    min-height: 650px;
+}
+
+.work-list{
+    grid-template-columns:  repeat(3, 1fr);
+    gap: 30px;
+}
+
+.work-box{
+    overflow: hidden;
+}
+
+.thumb__box{
+    width: fit-content;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    border: 2px solid rgb(66, 66, 66);
+}
+
+.work-thumb{
+    width: 300px;
+    height: 200px; 
+    object-fit: cover;
+    transition: scale 0.3s;
+}
+
+.work-thumb:hover{
+    scale: 1.05 1.05;
+}
+
+.adult{
+    left: 5px;
+    top: 5px;
+    position: absolute;
+    height: 25px;
+    z-index: 99;
+}
+
+
+
+
+.work-title{
+    padding: 5px 10px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    font-size: 19px;
+    font-weight: bold;
+    font-family: 'KimjungchulMyungjo-Bold';
+    line-height: 150%;
+}

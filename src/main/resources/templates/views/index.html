@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/common_layout :: footer_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{::footer})}">
+        <div th:fragment="main" th:with="viewAdult=${#authentication.principal == 'anonymousUser' ? false : #authentication.principal.viewAdult}">
+            <div class="banner-cont flex">
+                <div class="flex justify-content-center align-items-center" style="width: 150px; cursor: pointer;">
+                    <img id="prev-slide-button" style="height: 50px;" src="/img/prevButtonImg.png">
+                </div>
+                <div class="slide-cont flex overflow-hidden">
+                    <div class="slide-box flex" style="transition-duration: 300ms; left: 0;">
+                        <div class="slide">
+                            <a><img src="/img/banner3.png" ></a>
+                        </div>
+                        <div class="slide">
+                            <a><img src="/img/banner1.jpg" ></a>
+                        </div>
+                        <div class="slide">
+                            <a><img src="/img/banner2.jpg" ></a>
+                        </div>
+                        <div class="slide">
+                            <a><img src="/img/banner3.png" ></a>
+                        </div>
+                        <div class="slide">
+                            <a><img src="/img/banner1.jpg" ></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-content-center align-items-center" style="width: 150px; cursor: pointer;">
+                    <img id="next-slide-button" style="height: 50px;" src="/img/nextButtonImg.png">
+                </div>
+            </div>
+            <div id="week-best-series" class="flex justify-content-center align-items-center">
+                <div class="best-series-cont">
+                    <div class="info-title flex align-items-center">
+                        <span>인기 연재(주간)</span>
+                        <div class="item-move-option grow">
+                            <button class="next-button">
+                                <img src="/img/nextButtonImg.png">
+                            </button>
+                            <button class="prev-button">
+                                <img src="/img/prevButtonImg.png">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="series-list item-list">
+                        <div class="series-box relative" th:each="series : ${weekBestSeries}" th:if="${!(series.adultOnly && !viewAdult)}"  th:onclick="|location.href='/series/${series.id}'|">
+                            <div class="relative flex justify-content-center">
+                                <div class="series-img relative">
+                                    <img th:if="${series.adultOnly}" class="adult" src="/img/adultOnlyImg.png">
+                                    <img th:src="${series.thumbnailUrl != null ? series.thumbnailUrl : '/img/noImageVer.png'}" class="series-thumb" >
+                                </div>
+                                <div class="series-info">
+                                    <div class="series-info__detail">
+                                        <div class="detail-box">
+                                            <img src="/img/likeImg.png">
+                                            <span th:with="totalLike=${series.totalLike > 1000 ? (series.totalLike / 1000) + 'K' : series.totalLike}" th:text="${totalLike}">좋아요 수</span>
+                                        </div>
+                                        <div class="detail-box">
+                                            <img src="/img/followImg.png">
+                                            <span th:with="totalFollower=${series.totalFollower > 1000 ? (series.totalFollower / 1000) + 'K' : series.totalFollower}" th:text="${totalFollower}">팔로워 수</span>
+                                        </div>
+                                        <div class="detail-box">
+                                            <span>Ep.</span>
+                                            <span th:with="totalEp=${series.totalEpBoard > 1000 ? (series.totalEpBoard / 1000) + 'K' : series.totalEpBoard}" th:text="${totalEp}">전체 에피소드</span>
+                                        </div>
+                                    </div>
+                                    <div class="series-info__title" th:text="${series.name}">시리즈명</div>
+                                    <div class="series-info__story" th:text="${series.description}">스토리</div>
+                                </div>
+                            </div>
+                            <div class="tag" ><span th:each="tag : ${series.tag}" th:text="|#${tag} |"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="week-best-free-work" class="flex justify-content-center align-items-center">
+                <div class="best-work-cont">
+                    <div class="info-title flex align-items-center">
+                        <span>인기 자유(주간)</span>
+                        <div class="item-move-option grow">
+                            <button class="next-button">
+                                <img src="/img/nextButtonImg.png">
+                            </button>
+                            <button class="prev-button">
+                                <img src="/img/prevButtonImg.png">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="free-work-list item-list">
+                        <div class="free-work-box relative" th:each="board : ${weekBestFreeWorks}" th:if="${!(board.adultOnly && !viewAdult)}"  th:onclick="|location.href='/fwBoards/${board.id}'|">
+                            <div class="thumb-box">
+                                <div class="free-work-img relative">
+                                    <img th:if="${board.adultOnly}" class="adult" src="/img/adultOnlyImg.png">
+                                    <img th:src="${board.thumbnailUrl != null ? board.thumbnailUrl : '/img/noImageVer.png'}" class="free-work-thumb" >
+                                </div>
+                            </div>
+                            <div class="free-work-title" th:text="${board.title}">제목</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="rank-series"  class="flex justify-content-center align-items-center">
+                <div class="best-series-cont">
+                    <div class="info-title flex align-items-center">
+                        <span>인기 연재(랭킹)</span>
+                        <div class="item-move-option grow">
+                            <button class="next-button">
+                                <img src="/img/nextButtonImg.png">
+                            </button>
+                            <button class="prev-button">
+                                <img src="/img/prevButtonImg.png">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="series-list item-list">
+                        <div class="series-box relative" th:each="series : ${seriesRanks}" th:if="${!(series.adultOnly && !viewAdult)}" th:onclick="|location.href='/series/${series.id}'|">
+                            <div class="relative flex justify-content-center">
+                                <div class="series-img relative">
+                                    <img th:if="${series.adultOnly}" class="adult" src="/img/adultOnlyImg.png">
+                                    <img th:src="${series.thumbnailUrl != null ? series.thumbnailUrl : '/img/noImageVer.png'}" class="series-thumb" >
+                                </div>
+                                <div class="series-info">
+                                    <div class="series-info__detail">
+                                        <div class="detail-box">
+                                            <img src="/img/likeImg.png">
+                                            <span th:with="totalLike=${series.totalLike > 1000 ? (series.totalLike / 1000) + 'K' : series.totalLike}" th:text="${totalLike}">좋아요 수</span>
+                                        </div>
+                                        <div class="detail-box">
+                                            <img src="/img/followImg.png">
+                                            <span th:with="totalFollower=${series.totalFollower > 1000 ? (series.totalFollower / 1000) + 'K' : series.totalFollower}" th:text="${totalFollower}">팔로워 수</span>
+                                        </div>
+                                        <div class="detail-box">
+                                            <span>Ep.</span>
+                                            <span th:with="totalEp=${series.totalEpBoard > 1000 ? (series.totalEpBoard / 1000) + 'K' : series.totalEpBoard}" th:text="${totalEp}">전체 에피소드</span>
+                                        </div>
+                                    </div>
+                                    <div class="series-info__title" th:text="${series.name}">시리즈명</div>
+                                    <div class="series-info__story" th:text="${series.description}">스토리</div>
+                                </div>
+                            </div>
+                            <div class="tag" ><span th:each="tag : ${series.tag}" th:text="|#${tag} |"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="rank-free-work" class="flex justify-content-center align-items-center">
+                <div class="best-work-cont">
+                    <div class="info-title flex align-items-center">
+                        <span>인기 자유(랭킹)</span>
+                        <div class="item-move-option grow">
+                            <button class="next-button">
+                                <img src="/img/nextButtonImg.png">
+                            </button>
+                            <button class="prev-button">
+                                <img src="/img/prevButtonImg.png">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="free-work-list item-list">
+                        <div class="free-work-box relative" th:each="board : ${freeWorkRanks}" th:if="${!(board.adultOnly && !viewAdult)}"  th:onclick="|location.href='/fwBoards/${board.id}'|">
+                            <div class="thumb-box">
+                                <div class="free-work-img relative">
+                                    <img th:if="${board.adultOnly}" class="adult" src="/img/adultOnlyImg.png">
+                                    <img th:src="${board.thumbnailUrl != null ? board.thumbnailUrl : '/img/noImageVer.png'}" class="free-work-thumb" >
+                                </div>
+                            </div>
+                            <div class="free-work-title" th:text="${board.title}">제목</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{views/common_layout :: footer_layout}" th:fragment="footer"></footer>
+    </div>
+
+    <script src="/js/slide.js"></script>
+
+</body>
+<script th:inline="javascript">
+        const wbfwNextButton = document.querySelector("#week-best-free-work .item-move-option .next-button");
+        const wbfwPrevButton = document.querySelector("#week-best-free-work .item-move-option .prev-button");
+        const wbfwList = document.querySelector("#week-best-free-work .free-work-list");
+        let wbfwSize = [[${weekBestFreeWorks.size}]];
+        let wbfwCount = 0;
+
+        wbfwNextButton.addEventListener("click", () => {
+            if(wbfwSize - wbfwCount <= 4) return;
+            wbfwList.style.left = `-${++wbfwCount * 300}px`;
+        });
+
+        wbfwPrevButton.addEventListener("click", () => {
+            if(wbfwCount <= 0) return;
+            wbfwList.style.left = `-${--wbfwCount * 300}px`;
+        });
+
+
+        const wbsNextButton = document.querySelector("#week-best-series .item-move-option .next-button");
+        const wbsPrevButton = document.querySelector("#week-best-series .item-move-option .prev-button");
+        const wbsList = document.querySelector("#week-best-series .series-list");
+        let wbsSize = [[${weekBestSeries.size}]];
+        let wbsCount = 0;
+
+        wbsNextButton.addEventListener("click", () => {
+            if(wbsSize - wbsCount <= 5) return;
+            wbsList.style.left = `-${++wbsCount * 250}px`;
+        });
+
+        wbsPrevButton.addEventListener("click", () => {
+            if(wbsCount <= 0) return;
+            wbsList.style.left = `-${--wbsCount * 250}px`;
+        });
+
+
+        const rfwNextButton = document.querySelector("#rank-free-work .item-move-option .next-button");
+        const rfwPrevButton = document.querySelector("#rank-free-work .item-move-option .prev-button");
+        const rfwList = document.querySelector("#rank-free-work .free-work-list");
+        let rfwSize = [[${freeWorkRanks.size}]];
+        let rfwCount = 0;
+
+        rfwNextButton.addEventListener("click", () => {
+            if(rfwSize - rfwCount <= 4) return;
+            rfwList.style.left = `-${++rfwCount * 300}px`;
+        });
+
+        rfwPrevButton.addEventListener("click", () => {
+            if(rfwCount <= 0) return;
+            rfwList.style.left = `-${--rfwCount * 300}px`;
+        });
+
+        const rankSeriesNextButton = document.querySelector("#rank-series .item-move-option .next-button");
+        const rankSeriesPrevButton = document.querySelector("#rank-series .item-move-option .prev-button");
+        const rankSeriesList = document.querySelector("#rank-series .series-list");
+        let rankSeriesSize = [[${seriesRanks.size}]];
+        let rankSeriesCount = 0;
+
+        rankSeriesNextButton.addEventListener("click", () => {
+            if(rankSeriesSize - rankSeriesCount <= 5) return;
+            rankSeriesList.style.left = `-${++rankSeriesCount * 250}px`;
+        });
+
+        rankSeriesPrevButton.addEventListener("click", () => {
+            if(rankSeriesCount <= 0) return;
+            rankSeriesList.style.left = `-${--rankSeriesCount * 250}px`;
+        });
+
+    </script>
+</html>

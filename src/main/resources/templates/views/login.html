@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/class_style.css">
+    <link rel="stylesheet" href="/css/login.css">
+
+</head>
+<body>
+    <div id="wrap">
+        <div  style="margin: auto;">
+            <div class="logo flex justify-content-center">
+                <a href="/"><img src="/img/logo.png"></a>
+            </div>
+            <div id="login__cont">
+                <form id="login__form" action="/login" method="post">
+                    <h2>로그인</h2>
+                    <div class="input__box">
+                        <input type="text" class="input-id" name="loginId" placeholder="아이디" maxlength="30">
+                        <input type="password" class="input-pw" name="password" placeholder="비밀번호" maxlength="16">
+                    </div>
+                    <span class="error" style="display: none;">아이디 또는 비밀번호가 잘못되었습니다.</span>
+                    <button class="submit__button" type="submit">로그인</button>
+                    <div class="option__box">
+                        <a href="/join">회원가입</a>
+                        <a href="">아이디/비밀번호 찾기</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function(){
+            const loginForm = document.getElementById('login__form');
+            const error = document.querySelector('.error');
+            loginForm.addEventListener("submit", e => {
+                e.preventDefault();
+                const payload = new FormData(loginForm);
+                fetch(`/login`, {
+                    method: 'post',
+                    body: payload
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if(res.status === 200) location.href = `${res.data}`;
+                    else if(res.status === 400){
+                        error.style.display = "inline";
+                    }else{
+                        alert('서버 오류입니다.');
+                    }
+                });
+
+            })
+        })();
+    </script>
+</body>
+</html>

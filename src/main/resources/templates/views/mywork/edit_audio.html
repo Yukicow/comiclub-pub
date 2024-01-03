@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Comiclub</title>
+  <link rel="stylesheet" href="/css/mywork/edit_audio.css">
+  <link rel="stylesheet" href="/css/reset.css">
+</head>
+<body>
+<div id="scene-window">
+  <div class="scene-shower-box">
+
+  </div>
+</div>
+
+    <div id="edit-window">
+      <div id="flex-box">
+        <div class="file-cont">
+          <div class="file-add">
+            <label for="file">Add New Sound File</label>
+            <input id="file" name="file" accept="audio/*" type="file">
+          </div>
+          <div id="file-list-box"></div>
+        </div>
+        <div class="edit-cont">
+          <div id="option-bar">
+            <input type="range" id="ratio" min="8" max="70" step="2" value="8">
+
+            <div class="option-bunch">
+              <button id="play-button" style="line-height: 0;">▶</button>
+              <button id="init-button"><img class="icon" src="/img/audio/resetImg.png"></button>
+              <button id="record-button"><img class="icon" src="/img/audio/recordImg.png"></button>
+            </div>
+            <div class="option-bunch">
+              <button id="cut-button"><img class="/img/audio" style="width: 15px; height: 25px;" src="/img/audio/cutImg.png"></button>
+              <button id="delete-button"><img class="icon" style="width: 17px; height: 23px;" src="/img/audio/eraseImg.png"></button>
+              <button id="undo-button"><img class="icon" src="/img/audio/undoImg.png"></button>
+              <button id="redo-button"><img class="icon" src="/img/audio/redoImg.png"></button>
+            </div>
+            <div class="option-bunch">
+              <div id="time-add-box">
+                <input type="text" id="time-input" maxlength="4" value="0">
+                <button id="time-add-button"><img class="icon" style="width: 30px; height: 30px;" src="/img/audio/timeLineImg.png"></button>
+                <button id="track-add-button"><img class="icon" src="/img/audio/addImg.png"></button>
+              </div>
+            </div>
+            <div class="option-bunch">
+              <button button id="download-button"><img class="icon" style="width: 20px; height: 20px;" src="/img/audio/downloadImg.png"></button>
+            </div>
+          </div>
+
+          <div id="edit-box">
+            <div id="track-option">
+              <div id="time-shower"></div>
+            </div>
+            <div id="track-cont">
+              <div id="time-line-box">
+                <div id="time-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="scene-option-cont">
+      <div class="scene-option-box">
+        <button class="prev-scene-button scene-option-button" th:attr="onclick=|${hasPrevScene ? 'moveToPrevScene()' : 'alertFirstScene()'}|">
+          이전 장면
+        </button>
+        <button class="redirect-scene-button scene-option-button" onclick="goSceneEditPage()">
+          장면 편집 페이지
+        </button>
+        <button class="save-button scene-option-button" onclick="saveAudio()">
+          저장하기
+        </button>
+        <button class="redirect-work-button scene-option-button" onclick="goWorkPage()">
+          작품 페이지
+        </button>
+        <button class="next-scene-button scene-option-button" th:attr="onclick=|${hasNextScene ? 'moveToNextScene()' : 'createNextScene()'}|">
+          다음 장면
+        </button>
+      </div>
+    </div>
+    <footer>
+
+    </footer>
+
+    <script th:inline="javascript">
+
+            const scene = [[${scene}]]
+            const nextSceneNumber = scene.sceneNumber + 1;
+
+            const layers = scene.layers;
+            let totalLayer = scene.totalLayer;
+
+            const showerBox = document.querySelector(".scene-shower-box");
+            const layerNodeMap = new Map();
+            let readyToPlay = false;
+            let layerReadyCount = 0;
+            let audioReady = false;
+
+            let layerCount = 1;
+            let layerTimeout;
+
+            class LayerNode {
+                imgElement;
+                duration;
+                startTime;
+                endTime;
+
+                constructor(imgElement, duration, startTime) {
+                    this.imgElement = imgElement;
+                    this.duration = duration;
+                    this.startTime = startTime;
+                    this.endTime = startTime + duration;
+                }
+            }
+    </script>
+    <script src="/js/audio_encoder.js"></script>
+    <script src="/js/audio_editor.js"></script>
+    <script th:inline="javascript">
+
+            let downloading = false;
+            const downloadButton = document.getElementById("download-button");
+
+            let redirect = false;
+
+            window.onbeforeunload = function () {
+                if(!audioChanged) return;
+                else if(redirect) return;
+                return '페이지를 나갈 경우 현재까지 작업한 내용이 저장되지 않습니다.';
+            };
+
+            downloadButton.addEventListener("click", downloadAudioWork);
+            async function downloadAudioWork() {
+                if(downloading || !confirm("작업 결과를 다운받으시겠습니까? \n(오디오 길이에 따라 시간이 다소 걸릴 수 있습니다.)")) return;
+                downloading = true;
+                downloadButton.classList.add("disabled");
+                const mergedBuffer = await getAllTrackMergedBuffer();
+                audioEncoder(mergedBuffer, 128, null, function onComplete(blob) {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = "audio.mp3";
+
+                    link.click();
+
+                    // 다운로드 후에 가상의 링크 엘리먼트를 제거합니다.
+                    window.URL.revokeObjectURL(url);
+
+                    saving = false;
+                    downloadButton.classList.toggle("disabled");
+                    downloading = false;
+                });
+            }
+
+
+            const workUrl = [[${workUrl}]];
+            const workUrlWithoutId = workUrl.slice(0, workUrl.lastIndexOf("/"));
+
+
+            const saveButton = document.querySelector(".save-button");
+            let saving = false;
+
+            async function saveAudio() {
+                if(saving || !confirm("현재 상태를 저장하시겠습니까? \n(작업 상태가 초기화되며 오디오가 저장됩니다.)")) return;
+                saving = true;
+                saveButton.classList.toggle("disabled");
+                saveButton.textContent = "저장 중";
+                const formData = new FormData();
+                const mergedBuffer = await getAllTrackMergedBuffer();
+                if(mergedBuffer){
+                    audioEncoder(mergedBuffer, 128, null, function onComplete(blob) {
+                        formData.append("audioFile", blob, "audio.mp3");
+                        fetch(workUrlWithoutId + `/scenes/${scene.id}/audio`, {method: 'PATCH', body: formData})
+                        .then(res => res.json())
+                        .then(result => {
+                            if(result.status === 200){
+                                alert("저장이 완료되었습니다.");
+                                audioChanged = false;
+                            }else if(result.status >= 400){
+                                alert("서버 오류입니다. (저장에 실패하였습니다)");
+                            }else{
+                                alert("저장에 실패하였습니다. (파일의 용량을 확인해 주세요.)");
+                            }
+                        });
+                        saveButton.textContent = "저장하기";
+                        saving = false;
+                        saveButton.classList.remove("disabled");
+                    });
+                }else{
+                    fetch(workUrlWithoutId + `/scenes/${scene.id}/audio`, {method: 'PATCH'})
+                    .then(res => res.json())
+                    .then(result => {
+                        if(result.status === 200){
+                            alert("저장이 완료되었습니다.");
+                            audioChanged = false;
+                        }else{
+                            alert("서버 오류입니다. (저장에 실패하였습니다)");
+                        }
+                        saving = false;
+                        saveButton.classList.remove("disabled");
+                    });
+                }
+            }
+
+            function moveToPrevScene() {
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                const prevSceneUrl = workUrl + `/scene/audio?sno=${scene.sceneNumber - 1}`;
+                checkUnload(prevSceneUrl);
+            }
+
+            function goSceneEditPage(layerNumber){
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                const scenePage = workUrl + `/scene?sno=${scene.sceneNumber}`;
+                checkUnload(scenePage);
+            }
+
+            function goWorkPage(layerNumber){
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                const workPage = workUrl;
+                checkUnload(workPage);
+            }
+
+            function moveToNextScene() {
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                const nextScenePage = workUrl + `/scene/audio?sno=${scene.sceneNumber + 1}`;
+                checkUnload(nextScenePage);
+            }
+
+            function createNextScene() {
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                if(nextSceneNumber > 100){
+                    alert("마지막 장면입니다.");
+                }else{
+                    const create = confirm("다음 장면이 없습니다. 새로 만드시겠습니까?");
+                    if(!create) return;
+                    fetch(workUrl + `/scene`, {method:`POST`})
+                    .then(res => res.json())
+                    .then(result => {
+                        if(result.code === "SUCCESS")
+                            location.href = workUrl + `/scene/audio?sno=${scene.sceneNumber + 1}`;
+                        else
+                            alert('서버 오류입니다.');
+                    });
+                }
+            }
+
+            async function checkUnload(redirectUrl){
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                if(audioChanged){
+                    if(confirm("페이지를 나갈 경우 현재 작업 상태가 초기화 됩니다. \n저장 후 나가시겠습니까?")){
+                        saving = true;
+                        saveButton.classList.toggle("disabled");
+                        saveButton.textContent = "저장 중";
+                        const formData = new FormData();
+                        const mergedBuffer = await getAllTrackMergedBuffer();
+                        if(mergedBuffer){
+                            audioEncoder(mergedBuffer, 128, null, function onComplete(blob) {
+                                formData.append("audioFile", blob, "audio.mp3");
+                                fetch(workUrlWithoutId + `/scenes/${scene.id}/audio`, {method: 'PATCH', body: formData})
+                                .then(res => res.json())
+                                .then(result => {
+                                    if(result.status === 200){
+                                        alert("저장이 완료되었습니다.");
+                                        redirect = true;
+                                        location.href = redirectUrl;
+                                    }else{
+                                        alert("서버 오류입니다. (저장에 실패하였습니다)");
+                                    }
+                                    const mergedBuffer = getAllTrackMergedBuffer();
+                                })
+                                .catch(() => {
+                                    alert("저장에 실패하였습니다. (파일의 용량을 확인해 주세요.)");
+                                });
+                            });
+                        }
+                        else{
+                            fetch(workUrlWithoutId + `/scenes/${scene.id}/audio`, {method: 'PATCH'})
+<!--                            .then(res => {-->
+<!--                                if(res.ok-->
+<!--                                res.json()-->
+<!--                              })-->
+                            .then(result => {
+                                if(result.status === 200){
+                                    alert("저장이 완료되었습니다.");
+                                    redirect = true;
+                                    location.href = redirectUrl
+                                }else if(result.status >= 400){
+                                    alert("서버 오류입니다. (저장에 실패하였습니다)");
+                                }else{
+                                    alert("저장에 실패하였습니다. (파일의 용량을 확인해 주세요.)");
+                                }
+                            });
+                        }
+                        saveButton.textContent = "저장하기";
+                        saving = false;
+                        saveButton.classList.remove("disabled");
+                    }else{
+                        if(confirm("저장하지 않고 나가시겠습니까?")){
+                            redirect = true;
+                            location.href = redirectUrl;
+                        }
+                    }
+                }else{
+                    redirect = true;
+                    location.href = redirectUrl;
+                }
+            }
+
+
+            function alertFirstScene() {
+                if(saving) {
+                    alert("오디오를 저장중입니다.");
+                    return;
+                }
+
+                alert('첫 장면입니다.');
+            }
+
+    </script>
+</body>
+</html>

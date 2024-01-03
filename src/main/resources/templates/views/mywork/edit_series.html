@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/edit_series.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+       <th:block th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <th:block th:fragment="content">
+                <div class="series-info-wrap">
+                    <div class="series-info__head section-head">작품 정보</div>
+                    <div class="series-info__body section-body">
+                        <div class="info-area flex">
+                            <div class="info-thumbnail"><img th:src="${series.thumbnailUrl != null ? series.thumbnailUrl : '/img/noImageVer.png'}"></div>
+                            <div class="info-box">
+                                <div class="info-title">
+                                    <img th:if="${series.adultOnly}" src="/img/adultOnlyImg.png" class="adult">
+                                    <span th:text="${series.name}">시리즈명</span>
+                                </div>
+                                <div class="info-desc" th:text="${series.description}">줄거리</div>
+                                <div class="info-tag">
+                                    <div class="tag-box flex">
+                                        <div class="tag" th:each="tag : ${series.tag}" th:text="|#${tag}|">태그</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="info-edit-button edit-button" th:onclick="|location.href='/mywork/series/${series.id}/info'|">수정하기</button>
+                            <button class="info-delete-button edit-button" th:onclick="|deleteSeries(${series.id})|">삭제하기</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ep-cont-wrap">
+                    <div class="flex align-items-center">
+                        <div class="ep-cont__head section-head" style="float: left;">작품 회차</div>
+                        <div class="grow" style="justify-content: right;">
+                            <a th:href="|/mywork/series/${series.id}/episode|"><button class="ep-add-button edit-button">+ 새 회차 등록</button></a>
+                        </div>
+                    </div>
+                    <div class="ep-cont__body section-body">
+                        <div class="ep-list-cont">
+                            <div class="ep-info" th:text="|총 ${series.totalEp}화|">총 화수</div>
+                            <ul class="ep-list">
+                                <li th:each="episode : ${series.episodes}">
+                                    <div class="ep-item">
+                                        <div class="ep-item__thumb"><img th:src="${episode.thumbnailUrl != null ? episode.thumbnailUrl : '/img/noImageHor.png'}"></div>
+                                        <div class="ep-item__title">
+                                            <a th:href="|/mywork/episodes/${episode.id}|" th:text="|${episode.episodeNumber}화. ${episode.title}|">에피소드 제목</a>
+                                        </div>
+                                        <div class="flex align-items-center" style="padding: 10px;">
+                                            <button class="edit-button" th:onclick="|location.href='/mywork/episodes/${episode.id}'|">장면 편집</button>
+                                            <button class="edit-button" th:onclick="|location.href='/mywork/episodes/${episode.id}/info'|">정보 편집</button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="flex justify-content-center" style="margin-top: 35px;">
+                            <th:block th:with="
+                                 totalPage=${page.totalPages},
+                                 pageNumber=${page.number},
+                                 pageSize=${page.size},
+                                 pageIndex=${pageNumber / 10 + 1},
+                                 startPage=${pageIndex * 10 - 9},
+                                 hasNextIndex=${totalPage - startPage >= 10},
+                                 hasPrevIndex=${startPage - 10 >= 1},
+                                 endPage=${hasNextIndex ? (pageIndex) * 10 : totalPage}"
+                            >
+                                <div class="paging-cont" th:if="${startPage < endPage}">
+                                    <button class="prev-page-button page-button" th:if="${hasPrevIndex}" th:onclick="|goPage(${startPage - 10})|">&lt;</button>
+                                    <th:block th:if="${totalPage != 0}" th:each="num : ${#numbers.sequence(startPage,endPage)}">
+                                        <button class="page-button" th:classappend="${num == pageNumber + 1} ? 'page-on' : _" th:text="${num}" th:onclick="|goPage(${num})|"></button>
+                                    </th:block>
+                                    <button class="next-page-button page-button" th:if="${hasNextIndex}" th:onclick="|goPage(${endPage + 1})|">&gt;</button>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+       </th:block>
+    </div>
+
+    <script th:inline="javascript">
+        const seriesId = [[${series.id}]];
+
+        function deleteSeries(id) {
+            if(!confirm('작품을 삭제하시겠습니까?')) return;
+            fetch(`/mywork/series/${id}`, {method: 'DELETE'})
+            .then(res => {
+                if(res.status === 200){
+                    alert('삭제되었습니다.');
+                    location.href = '/mywork';
+                }else if (res.status >= 500){
+                    alert('서버 오류입니다.');
+                }else{
+                    alert('권한이 없습니다.');
+                }
+            });
+        }
+
+        function goPage(pageNum) {
+            location.href = `/mywork/series/${seriesId}?page=${pageNum}`;
+        }
+    </script>
+    </script>
+</body>
+</html>

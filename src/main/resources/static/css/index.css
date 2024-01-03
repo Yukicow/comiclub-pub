@@ -1,0 +1,284 @@
+
+
+.banner-cont{
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-cont{
+    position: relative;
+    width: 1200px;
+    height: 300px;
+    flex-shrink: 0;
+}
+
+.slide-box{
+    position: absolute;
+    cursor: pointer;
+}
+
+
+
+
+
+
+.item-move-option button{
+    float: right;
+    background-color: transparent;
+    opacity: 70%
+}
+
+.item-move-option button:last-child{
+    margin-right: 10px;
+}
+
+.item-move-option img{
+    height: 30px;
+    cursor: pointer
+}
+
+
+
+
+#week-best-free-work, #rank-free-work{
+    background-color: whitesmoke;
+}
+
+.best-work-cont{
+    width: 1200px;
+    padding: 20px 0px;
+    text-align: center;
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+.best-series-cont{
+    width: 1205px;
+    padding: 20px 0px;
+    text-align: center;
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+}
+
+.info-title{
+    height: 60px;
+    font-size: 23px;
+    font-family: 'Nanum Gothic';
+    font-weight: bold;
+    color: rgb(114, 114, 114);
+    margin: 10px 0px 20px 0px;
+}
+
+.series-list{
+    display: flex;
+    gap: 35px;
+    overflow: hidden;
+    left: 0;
+}
+
+.series-box{
+    max-width: 160px;
+    cursor: pointer;
+}
+
+.series-thumb{
+    height: 240px;
+    width: 160px;
+    object-fit: cover;
+}
+
+.series-info{
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+    box-sizing: border-box;
+    height: 19%;
+    padding: 3px 6px;
+    width: 160px;
+    background-color: rgba(99, 99, 99, 0.6);
+    backdrop-filter: blur(4px);
+    transition: all 0.5s ease-in-out;
+}
+
+.series-info__detail{
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 7px;
+    text-shadow: 1px 1px 1px black;
+    font-size: 12px;
+}
+
+.detail-box{
+    margin: 0px 10px 0px 5px;
+}
+
+.detail-box img{
+    height: 11px;
+}
+
+.detail-box span{
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+    color: white;
+}
+
+.series-info__title{
+    padding: 0 3px;
+    overflow: hidden;
+    display: -webkit-box;
+    margin-bottom: 10px;
+    -webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    text-align: left;
+    line-height: 150%;
+    font-size: 15px;
+    font-family: 'KimjungchulGothic-Bold';
+    color: white;
+    height: fit-content;
+    text-shadow: 1px 1px 1px black;
+}
+
+.series-info__story{
+    padding: 10px 2px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    text-align: left;
+    text-shadow: 1px 1px 1px black;
+    line-height: 150%;
+    font-size: 13px;
+    color: white;
+    height: fit-content;
+    white-space: pre-line;
+}
+
+.series-box:hover .series-info-title{
+    height: fit-content;
+}
+
+.series-box:hover .series-info{
+    height: 100%;
+    background-color: rgba(99, 99, 99, 0.6);
+}
+
+.tag{
+    padding: 5px 10px;
+    line-height: 30px;
+    color: rgb(86, 97, 202);
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'KimjungchulGothic-Bold';
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+
+
+
+
+.free-work-list{
+    display: flex;
+    overflow: hidden;
+    left: 0;
+    gap: 25px;
+}
+
+.free-work-box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.thumb-box{
+    width: 225px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    border: 2px solid rgb(66, 66, 66);
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+
+.free-work-thumb{
+    height: 150px;
+    width: 225px;
+    object-fit: cover;
+    transition: scale 0.3s;
+}
+
+.free-work-thumb:hover{
+    scale: 1.08 1.08;
+}
+
+
+.free-work-title{
+    padding: 5px 10px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    font-size: 19px;
+    font-weight: bold;
+    font-family: 'KimjungchulMyungjo-bold';
+    line-height: 150%;
+}
+
+
+
+/* 시리즈는 hover효과가 19를 가려야 하고 자유작품은 hover시 19가 사라지지 않아야 해서 따로 분리 */
+.series-list .adult{
+    left: 5px;
+    top: 5px;
+    position: absolute;
+    height: 25px;
+}
+
+.free-work-list .adult{
+    left: 5px;
+    top: 5px;
+    position: absolute;
+    height: 25px;
+    z-index: 99;
+}
+
+
+#prev-slide-button{
+    opacity: 50%;
+}
+
+#next-slide-button{
+    opacity: 50%;
+}
+
+#prev-slide-button:hover{
+    opacity: 100%;
+}
+
+#next-slide-button:hover{
+    opacity: 100%;
+}
+
+
+
+
+
+
+
+
+
+.item-list{
+    transition-duration: 500ms;
+    position: absolute;
+}

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/index.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+       <div th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <th:block th:fragment="content">
+                <div class="free-work-cont section">
+                    <div class="free-work-cont__head section-head">자유 작품</div>
+                    <div class="free-work-cont__body section-body">
+                        <div class="option-box flex">
+                            <div class="search-bar flex">
+                                <div class="search-box">
+                                    <input type="text" class="title-input middle" placeholder="제목을 입력하세요.">
+                                    <button class="search-button middle" onclick="searchMyFreeWorks()"><img src="/img/searchImg.png"></button>
+                                </div>
+                            </div>
+                            <div class="flex justify-content-center">
+                                <button class="add-button pointer" onclick="location.href='/mywork/free'">+ 새 자유 작품 등록</button>
+                            </div>
+                        </div>
+                        <div class="free-work-list-box list-box">
+                            <ul>
+                                <li th:each="freeWork : ${freeWorks}">
+                                    <a th:href="|/mywork/free/${freeWork.id}|">
+                                        <div class="free-work-box">
+                                            <div class="item-box flex">
+                                                <div>
+                                                    <img class="free-work-thumbnail" th:src="${freeWork.thumbnailUrl != null ? freeWork.thumbnailUrl : '/img/noImageHor.png'}">
+                                                </div>
+                                                <div class="item-info">
+                                                    <div class="item-head flex">
+                                                        <div class="item-title" th:text="${freeWork.title}">제목</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <div class="free-work-shower shower" th:if="${freeWorks.hasNext()}" onclick="fetchMoreWorks(this)">작품 더 불러오기 ▼</div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="series-cont section">
+                    <div class="series-cont__head section-head">연재 작품</div>
+                    <div class="series-cont__body section-body">
+                        <div class="option-box flex">
+                            <div class="search-bar flex">
+                                <div class="search-box">
+                                    <input type="text" class="title-input middle" placeholder="제목을 입력하세요.">
+                                    <button class="search-button middle" onclick="searchMySeries()"><img src="/img/searchImg.png"></button>
+                                </div>
+                            </div>
+                            <div class="flex justify-content-center">
+                                <button class="add-button pointer" onclick="location.href='/mywork/series'">+ 새 연재 작품 등록</button>
+                            </div>
+                        </div>
+                        <div class="series-list-box list-box">
+                            <ul>
+                                <li th:each="series : ${seriesSlice}">
+                                    <a th:href="|/mywork/series/${series.id}|">
+                                        <div class="series-box">
+                                            <div class="item-box flex">
+                                                <div><img class="series-thumbnail" th:src="${series.thumbnailUrl != null ? series.thumbnailUrl : '/img/noImageVer.png'}"></div>
+                                                <div class="item-info">
+                                                    <div class="item-head flex">
+                                                        <div class="adult" th:if="${series.adultOnly}">
+                                                            <img src="/img/adultOnlyImg.png">
+                                                        </div>
+                                                        <div class="item-title" th:text="${series.name}">시리즈 이름</div>
+                                                    </div>
+                                                    <div class="item-desc" th:utext="${series.description}">줄거리</div>
+                                                    <div class="item-detail flex">
+                                                        <div class="detail">
+                                                            <img src="/img/viewerImg.png">
+                                                            <span th:text="${series.totalView}">조회수</span>
+                                                        </div>
+                                                        <div class="detail">
+                                                            <img src="/img/likeImg.png">
+                                                            <span th:text="${series.totalLike}">좋아요</span>
+                                                        </div>
+                                                        <div class="detail">
+                                                            <span>Ep.</span>
+                                                            <span th:text="${series.totalEp}">에피소드</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <div class="series-shower shower" th:if="${seriesSlice.hasNext()}" onclick="fetchMoreSeries(this)">작품 더 불러오기 ▼</div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+       </div>
+    </div>
+
+
+    <script>
+            const freeTitle = document.querySelector(
+                ".free-work-cont .title-input"
+            );
+            const seriesTitle = document.querySelector(
+                ".series-cont .title-input"
+            );
+            const freeWorkBox = document.querySelector(
+                ".free-work-list-box"
+            );
+            const seriesBox = document.querySelector(
+                ".series-list-box"
+            );
+
+            freeTitle.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    searchMyFreeWorks();
+                }
+            });
+
+            seriesTitle.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    searchMySeries();
+                }
+            });
+
+            function searchMyFreeWorks() {
+                const workList = document.querySelector(
+                    ".free-work-list-box ul"
+                );
+                const shower = document.querySelector(
+                    ".free-work-shower"
+                );
+                workList?.remove();
+                fetch(
+                    `/mywork/free/lists?wt=${freeTitle.value}`
+                )
+                    .then((res) => res.json())
+                    .then((result) => {
+                        if (result.status === 200) {
+                            const ul = document.createElement("ul");
+                            result.data.forEach((data) => {
+                                const item = createFreeWorkItem(data);
+                                ul.append(item);
+                                freeWorkBox.append(ul);
+                            });
+                            if (result.code === "HAS_NEXT") {
+                                const newShower = createWorkShower();
+                                ul.append(newShower);
+                            } else {
+                                shower?.remove();
+                            }
+                        }
+                    });
+            }
+
+            function createFreeWorkItem(data) {
+                const li = document.createElement("li");
+
+                const a = document.createElement("a");
+                a.href = `/mywork/free/${data.id}`;
+
+                const workBox = document.createElement("div");
+                workBox.classList.add("work-box");
+
+                const itemBox = document.createElement("div");
+                itemBox.classList.add("item-box", "flex");
+
+                const div1 = document.createElement("div");
+
+                const img = document.createElement("img");
+                img.classList.add("free-work-thumbnail");
+                img.src = data.thumbnailUrl
+                    ? data.thumbnailUrl
+                    : "/img/noImageHor.png";
+
+                div1.appendChild(img);
+
+                const itemInfo = document.createElement("div");
+                itemInfo.classList.add("item-info");
+
+                const itemHead = document.createElement("div");
+                itemHead.classList.add("item-head", "flex");
+
+                const itemTitle = document.createElement("div");
+                itemTitle.classList.add("item-title");
+                itemTitle.textContent = data.title;
+
+                itemHead.appendChild(itemTitle);
+                itemInfo.appendChild(itemHead);
+                itemBox.appendChild(div1);
+                itemBox.appendChild(itemInfo);
+                workBox.appendChild(itemBox);
+                a.appendChild(workBox);
+                li.appendChild(a);
+                return li;
+            }
+
+            function createWorkShower() {
+                const shower = document.querySelector(
+                    ".free-work-shower"
+                );
+                const div = document.createElement("div");
+                div.textContent = "작품 더 불러오기";
+                div.classList.add("free-work-shower", "shower");
+                div.dataset.nextPage = "2";
+                div.addEventListener("click", function () {
+                    fetchMoreWorks(this);
+                });
+                shower?.remove();
+                return div;
+            }
+
+            function fetchMoreWorks(target) {
+                const nextPage = target.dataset.nextPage;
+
+                fetch(
+                    `/mywork/free/lists?wt=${freeTitle.value}&page=${nextPage}`
+                )
+                    .then((res) => res.json())
+                    .then((result) => {
+                        if (result.status === 200) {
+                            result.data.forEach((data) => {
+                                const item = createFreeWorkItem(data);
+                                target.parentElement.insertBefore(item, target);
+                            });
+                            if (result.code === "HAS_NEXT") {
+                                target.dataset.nextPage =
+                                    parseInt(target.dataset.nextPage) + 1;
+                            } else {
+                                target.remove();
+                            }
+                        }
+                    });
+            }
+
+            /**
+             * series
+             */
+            function searchMySeries() {
+                const seriesList = document.querySelector(
+                    ".series-list-box ul"
+                );
+                const shower = document.querySelector(
+                    ".series-shower"
+                );
+                seriesList?.remove();
+                fetch(
+                    `/mywork/series/lists?sn=${seriesTitle.value}`
+                )
+                    .then((res) => res.json())
+                    .then((result) => {
+                        if (result.status === 200) {
+                            const ul = document.createElement("ul");
+                            result.data.forEach((data) => {
+                                const item = createSeriesItem(data);
+                                ul.append(item);
+                                seriesBox.append(ul);
+                            });
+                            if (result.code === "HAS_NEXT") {
+                                const newShower = createSeriesShower();
+                                ul.append(newShower);
+                            } else {
+                                shower?.remove();
+                            }
+                        }
+                    });
+            }
+
+            function createSeriesItem(data) {
+                // create the <a> element
+                const a = document.createElement("a");
+                a.href = `/mywork/series/${data.id}`;
+
+                // create the <div> element with class "work-box"
+                const workBox = document.createElement("div");
+                workBox.className = "series-box";
+
+                // create the <div> element with class "item-box flex"
+                const itemBox = document.createElement("div");
+                itemBox.className = "item-box flex";
+
+                // create the first <div> element with the thumbnail image
+                const thumbnailDiv = document.createElement("div");
+                const thumbnailImg = document.createElement("img");
+                thumbnailImg.className = "series-thumbnail";
+                thumbnailImg.src = data.thumbnailUrl
+                    ? data.thumbnailUrl
+                    : "/img/noImageVer.png";
+                thumbnailDiv.appendChild(thumbnailImg);
+                itemBox.appendChild(thumbnailDiv);
+
+                // create the second <div> element with class "item-info"
+                const itemInfo = document.createElement("div");
+                itemInfo.className = "item-info";
+
+                // create the <div> element with class "item-head flex"
+                const itemHead = document.createElement("div");
+                itemHead.className = "item-head flex";
+
+                // create the <div> element with class "adult"
+                if (data.adultOnly) {
+                    const adultDiv = document.createElement("div");
+                    adultDiv.className = "adult";
+                    const adultImg = document.createElement("img");
+                    adultImg.src = "/img/adultOnlyImg.png";
+                    adultDiv.appendChild(adultImg);
+                    itemHead.appendChild(adultDiv);
+                }
+
+                // create the <div> element with class "item-title"
+                const itemTitleDiv = document.createElement("div");
+                itemTitleDiv.className = "item-title";
+                itemTitleDiv.textContent = data.name;
+                itemHead.appendChild(itemTitleDiv);
+
+                itemInfo.appendChild(itemHead);
+
+                // create the <div> element with class "item-desc"
+                const itemDescDiv = document.createElement("div");
+                itemDescDiv.className = "item-desc";
+                itemDescDiv.textContent = data.description;
+                itemInfo.appendChild(itemDescDiv);
+
+                // create the <div> element with class "item-detail flex"
+                const itemDetail = document.createElement("div");
+                itemDetail.className = "item-detail flex";
+
+                // create the first <div> element with class "detail"
+                const detail1 = document.createElement("div");
+                detail1.className = "detail";
+                const viewerImg = document.createElement("img");
+                viewerImg.src = "/img/viewerImg.png";
+                detail1.appendChild(viewerImg);
+                const viewerCount = document.createElement("span");
+                viewerCount.textContent = data.totalView;
+                detail1.appendChild(viewerCount);
+                itemDetail.appendChild(detail1);
+
+                // create the second <div> element with class "detail"
+                const detail2 = document.createElement("div");
+                detail2.className = "detail";
+                const likeImg = document.createElement("img");
+                likeImg.src = "/img/likeImg.png";
+                detail2.appendChild(likeImg);
+                const likeCount = document.createElement("span");
+                likeCount.textContent = data.totalLike;
+                detail2.appendChild(likeCount);
+                itemDetail.appendChild(detail2);
+
+                // create the third <div> element with class "detail"
+                const detail3 = document.createElement("div");
+                detail3.className = "detail";
+                const epLabel = document.createElement("span");
+                epLabel.textContent = "Ep.";
+                detail3.appendChild(epLabel);
+                const epCount = document.createElement("span");
+                epCount.textContent = data.totalEp;
+                detail3.appendChild(epCount);
+                itemDetail.appendChild(detail3);
+
+                itemInfo.appendChild(itemDetail);
+
+                itemBox.appendChild(itemInfo);
+
+                workBox.appendChild(itemBox);
+
+                a.appendChild(workBox);
+
+                // create the <li> element and append the <a> element to it
+                const li = document.createElement("li");
+                li.appendChild(a);
+
+                return li;
+            }
+
+            function createSeriesShower() {
+                const shower = document.querySelector(
+                    ".series-shower"
+                );
+                const div = document.createElement("div");
+                div.textContent = "시리즈 더 불러오기";
+                div.classList.add("series-shower", "shower");
+                div.dataset.nextPage = "2";
+                div.addEventListener("click", function () {
+                    fetchMoreSeries(this);
+                });
+                shower?.remove();
+                return div;
+            }
+
+            function fetchMoreSeries(target) {
+                const nextPage = target.dataset.nextPage;
+
+                fetch(
+                    `/mywork/series/lists?sn=${seriesTitle.value}&page=${nextPage}`
+                )
+                    .then((res) => res.json())
+                    .then((result) => {
+                        if (result.status === 200) {
+                            result.data.forEach((data) => {
+                                const item = createSeriesItem(data);
+                                target.parentElement.insertBefore(item, target);
+                            });
+                            if (result.code === "HAS_NEXT") {
+                                target.dataset.nextPage =
+                                    parseInt(target.dataset.nextPage) + 1;
+                            } else {
+                                target.remove();
+                            }
+                        }
+                    });
+            }
+        </script>
+</body>
+</html>

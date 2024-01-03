@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/add_series_episode.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+       <div th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <div class="info-form-cont" th:fragment="content">
+                <div class="thumb-box flex">
+                    <div class="thumb__preview">
+                        <img>
+                        <div class="size-shower none">현재 파일 사이즈</div>
+                    </div>
+                    <div>
+                        <div class="thumb__head">작품 썸네일</div>
+                        <div class="thumb__body">
+                            <div class="thumb__info">
+                                ㆍ연재 작품에 사용되는 썸네일은 작품의 회차에 보여지는 이미지입니다..<br>
+                                ㆍ이미지는 최대 1MB까지 허용하며 자동으로 WEBP형식으로 압축됩니다..<br>
+                                ㆍ이미지의 크기에는 제한이 없지만 가로ㆍ세로 5 : 3 비율을 추천합니다.<br>
+                            </div>
+                        </div>
+                        <div>
+                            <input id="thumb" type="file" accept="image/*">
+                            <label for="thumb" class="thumb-file__label">파일 업로드</label>
+                        </div>
+                    </div>
+                </div>
+                <form id="info-form" th:object="${episode}" onsubmit="return false;">
+                    <div class="info-form__content">
+                        <div class="flex justify-content-center">
+                            <div class="content grow">
+                                <div class="content__head">작품명</div>
+                                <div class="content__body">
+                                    <div>
+                                        <input type="text" th:value="${seriesName}" class="content__input" style="width: 90%;height: 40px;text-align: center;font-size: 18px;overflow: hidden;padding: 0px 20px;" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content grow">
+                                <div class="content__head">회차</div>
+                                <div class="content__body">
+                                    <div>
+                                        <input type="text" th:value="${nextEp}" class="content__input" style="width: 40%;height: 40px;text-align: center;font-size: 18px;" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="content__head">제목</div>
+                            <div class="content__body">
+                                <input class="content-title content__input" th:field="*{title}" type="text" maxlength="50" placeholder="작품의 제목을 입력해 주세요.">
+                            </div>
+                        </div>
+                        <div class="content grow">
+                            <div class="content__head">자동 재생 가능 여부</div>
+                            <div class="content__body">
+                                <div>
+                                    <select class="content__select" th:field="*{autoMode}" style="width: 100%;">
+                                        <option value="true">가능</option>
+                                        <option value="false">불가능</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="content__info">ㆍ자동 재생 가능 여부를 '가능'으로 설정하시면 모든 장면에 장면 전환 시간을 설정하도록 강제됩니다.</div>
+                        </div>
+                        <div class="content grow">
+                            <div class="content__head">이미지ㆍ오디오 사용 및 2차 창작 허용</div>
+                            <div class="content__body">
+                                <div>
+                                    <select class="content__select" th:field="*{freeUse}" style="width: 100%;">
+                                        <option value="true">허용</option>
+                                        <option value="false">비허용</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="content__info">ㆍ[ 이미지ㆍ오디오 사용 및 2차 창작 허용 ]에 동의할 경우 제 3자의 작품에 현재 작품에서 사용된 이미지 및 오디오를 사용할 수 있도록 허용합니다.</div>
+                        </div>
+                        <div class="flex justify-content-center" style="margin: 70px 0px 40px 0px;">
+                            <button class="submit-button">등록하기</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+       </div>
+    </div>
+
+    <script src="/js/webp_converter.js"></script>
+    <script th:inline="javascript">
+        (function () {
+
+            // Thumbnail
+            let webp = null;
+            const thumbnailInput = document.getElementById(`thumb`);
+            const thumbnail = document.querySelector(`.thumb__preview img`);
+            const sizeShower = document.querySelector(`.size-shower`);
+
+            const submitButton = document.querySelector(`.submit-button`);
+
+
+            submitButton.addEventListener("click", async () =>{
+                const title = document.querySelector(`.content-title`);
+                if(title.value.length < 1) {
+                    alert('제목을 입력해 주세요.');
+                    title.focus();
+                    return;
+                }
+
+                const formData = new FormData(document.getElementById('info-form'));
+                if(webp) formData.append("thumbnail", webp, "thumbnail.webp");
+
+                fetch(`/mywork/series/[[${seriesId}]]/episode`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 200) {
+                        alert('등록이 완료되었습니다.');
+                        location.href = result.data;
+                    }else if(result.status >= 500) alert('서버 오류입니다.');
+                    else alert('잘못된 요청입니다..');
+                })
+            });
+
+            thumbnailInput.addEventListener("change", async () => {
+                const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+                if(!allowedExtensions.includes(thumbnailInput.value.split('.').pop().toLowerCase())){
+                    alert('이미지 파일이 아닙니다. 올바른 파일을 선택하세요.');
+                    return;
+                }
+
+                webp = await createWebpImg(thumbnailInput.files[0]);
+                const reader = new FileReader();
+                reader.onload = function () {
+                    thumbnail.src = reader.result;
+                    sizeShower.classList.remove("none");
+                    sizeShower.innerText = `업로드될 파일 사이즈 : ${(webp.size / (1024 *  1024)).toFixed(3)}MB`;
+                };
+                reader.readAsDataURL(webp);
+            });
+        }());
+    </script>
+
+</body>
+</html>

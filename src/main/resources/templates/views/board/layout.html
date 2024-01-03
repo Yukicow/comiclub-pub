@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <th:block th:fragment="board_layout_css">
+        <link rel="stylesheet" href="/css/board/layout.css">
+        <link rel="stylesheet" href="/css/board/side.css">
+        <link rel="stylesheet" href="/css/board/board_option.css">
+    </th:block>
+</head>
+<body>
+    <th:block th:fragment="board_layout(main)">
+        <div class="board-layout__wrap flex">
+            <div class="board-layout__main" th:insert="${main}"></div>
+
+            <div class="board-layout__side">
+                <div class="best-board__cont">
+                    <div class="bb-series bb-box">
+                        <div class="best-info">인기 연재</div>
+                        <div class="bb-list-box">
+                            <a th:each="series : ${bestSeries}" th:href="|/board/series/${series.id}|">
+                                <div class="bb-item flex">
+                                    <span class="rank-icon" th:text="${seriesStat.count}">랭크</span>
+                                    <div class="bb-title" th:text="${series.title}">제목</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bb-free bb-box">
+                        <div class="best-info">인기 자유</div>
+                        <div class="bb-list-box">
+                            <a th:each="board : ${bestFreeWorkBoards}" th:href="|/board/free/${board.id}|">
+                                <div class="bb-item flex">
+                                    <span class="rank-icon" th:text="${boardStat.count}">랭크</span>
+                                    <div class="bb-title" th:text="${board.title}">제목</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

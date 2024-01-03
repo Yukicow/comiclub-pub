@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/edit_scene.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/mywork/layout :: work_layout_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{})}">
+        <div th:replace="~{views/mywork/layout :: work_layout(~{::content})}" th:fragment="main">
+
+            <th:block th:fragment="content">
+                <div class="scene-shower-cont">
+                    <div
+                            class="flex align-items-center justify-content-center"
+                    >
+                        <div
+                                th:attr="onclick=|${hasPrevScene ? 'moveToPrevScene()' : 'alertFirstScene()'}|"
+                                class="prev-transition-button transition-button"
+                        >
+                            <img src="/img/prevButtonImg.png">
+                        </div>
+                        <div class="scene-shower-box">
+
+                        </div>
+                        <div
+                                th:attr="onclick=|${hasNextScene ? 'moveToNextScene()' : 'createNextScene()'}|"
+                                class="next-transition-button transition-button"
+                        >
+                            <img src="/img/nextButtonImg.png">
+                        </div>
+                    </div>
+                    <div class="scene-shower-option">
+                        <div class="scene-transition-option">
+                            <span>장면 전환</span>
+                            <input type="number" th:value="${scene.duration}" disabled="true" />
+                            <span>초 후</span>
+                        </div>
+                        <div>
+                            <button class="option-button" onclick="goWorkPage()">작품 페이지</button>
+                            <button class="play-button option-button">재생하기</button>
+                            <button class="option-button" onclick="goAudioEditPage()">오디오 편집</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layer-edit-cont">
+                    <div class="layer-list-box">
+                        <ul class="layer-list">
+                            <li class="layer-add-button">
+                                <div>+</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="save-button option-button">레이어 전환 상태 저장</button>
+            </th:block>
+        </div>
+    </div>
+    <script th:inline="javascript">
+
+        const workUrl = [[${workUrl}]];
+        const workUrlWithoutId = workUrl.slice(0, workUrl.lastIndexOf("/"));
+        const currentUrl = location.href.split('?')[0];
+
+        const scene = [[${scene}]];
+        const nextSceneNumber = scene.sceneNumber + 1;
+        const prevSceneNumber = scene.sceneNumber - 1;
+
+        const layers = scene.layers;
+        const layerNodes = [];
+        const layerDurationMap = new Map();
+
+        const showerBox = document.querySelector(".scene-shower-box");
+        const layerListElement = document.querySelector(".layer-list");
+        const layerAddButton = document.querySelector(".layer-add-button");
+
+        let readyToPlay = false;
+        let layerReadyCount = 0;
+        let sceneAudioReady = false;
+        let totalLayer = scene.totalLayer;
+        let layerCount = 1;
+        let layerTimeout;
+
+        let currentSourceNode;
+
+        class LayerNode{
+
+            constructor(imgElement, duration) {
+                this.imgElement = imgElement;
+                this.duration = duration;
+            }
+        }
+
+        const audioCtx = scene.audioFileUrl ? new AudioContext() : null;
+        let audioBuffer;
+
+
+        initPageData();
+        async function initPageData() {
+            if(audioCtx){
+                fetch(scene.audioFileUrl)
+                .then(data => data.arrayBuffer())
+                .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+                .then(decodedBuffer => {
+                    audioBuffer = decodedBuffer;
+                    sceneAudioReady = true;
+                });
+            }else{
+                sceneAudioReady = true;
+            }
+
+            for (let i = 0; i < layers.length; i++) {
+                const layer = layers[i];
+                await createLayerElement(layer);
+            }
+
+            checkReadyStateForPlaying();
+        }
+
+        async function createLayerElement(layer) {
+            // Create <li> element
+            const liElement = document.createElement("li");
+            liElement.classList.add("layer");
+            liElement.dataset.layerNum = layer.layerNumber;
+            liElement.dataset.layerId = layer.id;
+
+            // Create <img> element
+            const imgElement = document.createElement("img");
+            imgElement.classList.add("layer-img");
+            imgElement.setAttribute("src", layer.imgFileUrl ? layer.imgFileUrl : "/img/noImageHor.png");
+            imgElement.addEventListener("click", () => { goLayerEditPage(layer.id)});
+
+            // Create <div> element with class "layer-transition-option"
+            const divElement = document.createElement("div");
+            divElement.classList.add("layer-transition-option");
+
+            // Create <span> element for "레이어 전환"
+            const span1Element = document.createElement("span");
+            span1Element.textContent = "레이어 전환";
+
+            // Create <input> element with type "number"
+            const inputElement = document.createElement("input");
+            inputElement.setAttribute("type", "number");
+            inputElement.setAttribute("step", "0.1");
+            inputElement.classList.add("layer-transition-input");
+            inputElement.disabled = true;
+            inputElement.value = layer.duration;
+
+            // Create <span> element for "초 후"
+            const span2Element = document.createElement("span");
+            span2Element.textContent = "초 후";
+
+            // Create <button> element for "변경"
+            const button1Element = document.createElement("button");
+            button1Element.textContent = "편집";
+
+            inputElement.addEventListener("input", () => {
+                if(parseFloat(inputElement.value) > 10)
+                    inputElement.value = 10;
+                else if(parseFloat(inputElement.value) < 0)
+                    inputElement.value = 0;
+            });
+
+            inputElement.addEventListener("change", () => {
+                layerDurationMap.set(layer.id, inputElement.value);
+                layerNodes[layer.layerNumber - 1].duration = parseFloat(inputElement.value);
+                let totalLayerDuration = 0;
+                document.querySelectorAll(".layer-transition-input").forEach(input => {
+                    totalLayerDuration += parseFloat(input.value);
+                });
+                sceneTransitionInput.value = totalLayerDuration;
+            });
+
+            button1Element.addEventListener("click", () => {
+                inputElement.disabled = !inputElement.disabled;
+            });
+
+
+            // Create <button> element for "삭제"
+            const button2Element = document.createElement("button");
+            button2Element.textContent = "삭제";
+            button2Element.addEventListener("click", () => {
+                if(totalLayer <= 1) {
+                    alert("장면에는 최소 하나의 레이어가 필요합니다.");
+                    return;
+                }
+
+                const deleteLayer = confirm("해당 레이어를 삭제하시겠습니까? (되돌릴 수 없습니다.)");
+                if(!deleteLayer) return;
+
+                fetch(workUrlWithoutId + `/scenes/layers/${layer.id}`, {method:"DELETE"})
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 200){
+
+                        // 레이어 제거
+                        const layerElement = document.querySelector(
+                            `.layer[data-layer-num="${layer.layerNumber}"]`
+                        );
+                        layerElement.remove();
+
+                        // 레이어 상태 변경
+                        layerNodes.splice(layer.layerNumber - 1, 1);
+                        totalLayer--;
+                        layerAddButton.classList.remove("none");
+
+                        // 총 duration 조정
+                        let totalLayerDuration = 0;
+                        document.querySelectorAll(".layer-transition-input").forEach(input => {
+                            totalLayerDuration += parseFloat(input.value);
+                        });
+                        sceneTransitionInput.value = totalLayerDuration;
+
+                        alert("삭제되었습니다.");
+                    }else{
+                        alert("서버 오류입니다.");
+                    }
+                });
+            });
+
+            // Append elements to the <div> element
+            divElement.appendChild(span1Element);
+            divElement.appendChild(inputElement);
+            divElement.appendChild(span2Element);
+            divElement.appendChild(button1Element);
+            divElement.appendChild(button2Element);
+
+            // Append <img> and <div> elements to the <li> element
+            liElement.appendChild(imgElement);
+            liElement.appendChild(divElement);
+
+            layerListElement.insertBefore(liElement, layerAddButton);
+            if (totalLayer >= 4) {
+                layerAddButton.classList.add("none");
+            }
+
+            if(layer.imgFileUrl) {
+                const imageObject = new Image();
+                imageObject.classList.add("shower");
+                await (async function loadImage() {
+                    imageObject.src = layer.imgFileUrl;
+                    return new Promise(resolve => {
+                        imageObject.onload = function () {
+                            const layerNode = new LayerNode(imageObject, layer.duration);
+                            layerNodes.push(layerNode);
+                            layerReadyCount++;
+                            if (layer.layerNumber === 1)
+                                showerBox.append(imageObject);
+                            resolve();
+                        };
+                    });
+                })();
+            }else{
+                const div = document.createElement("div");
+                div.classList.add("no-image");
+                const layerNode = new LayerNode(div, layer.duration);
+                layerNodes.push(layerNode);
+                layerReadyCount++;
+            }
+
+            layerDurationMap.set(layer.id, layer.duration);
+        }
+
+        function checkReadyStateForPlaying() {
+            if(layerReadyCount !== layers.length || !sceneAudioReady){
+                setTimeout(checkReadyStateForPlaying, 100);
+                return;
+            }
+            readyToPlay = true;
+        }
+
+        function playLayer() {
+            if(!readyToPlay) return;
+
+            // 기존의 timeout, audio를 제거 및 layerCount 초기화
+            if(currentSourceNode) currentSourceNode.stop();
+            clearTimeout(layerTimeout);
+            layerCount = 1;
+
+            if(audioCtx){
+                const sourceNode = audioCtx.createBufferSource();
+                currentSourceNode = sourceNode;
+                sourceNode.buffer = audioBuffer;
+                sourceNode.connect(audioCtx.destination);
+                sourceNode.start();
+            }
+
+            setLayerTimeout();
+        }
+
+        function setLayerTimeout() {
+            if(layerCount > layerNodes.length){
+                layerCount = 1;
+                return;
+            }
+
+            const layer = layerNodes[layerCount - 1];
+            showerBox.textContent = '';
+            showerBox.append(layer.imgElement);
+            layerTimeout = setTimeout(switchLayer, layer.duration * 1000);
+        }
+
+        function switchLayer() {
+            layerCount++;
+            setLayerTimeout();
+        }
+    </script>
+    <script>
+
+            const playButton = document.querySelector(".play-button");
+            const saveButton = document.querySelector(".save-button");
+            const sceneTransitionInput = document.querySelector(".scene-transition-option input");
+
+            playButton.addEventListener("click", playLayer);
+
+            saveButton.addEventListener("click", () => {
+                const save = confirm("현재 상태를 저장하시겠습니까?");
+                if(!save) return;
+
+                fetch(workUrlWithoutId + `/scenes/${scene.id}/layers/duration`, {
+                    method:"PATCH",
+                    body: JSON.stringify(Object.fromEntries(layerDurationMap)),
+                    headers: {
+                        "Content-Type": "application/json",
+                        }
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 200){
+                        alert("저장이 완료되었습니다.");
+                    }else if(result.code === "AUTO_MODE_FALSE"){
+                        alert("자동 재생 옵션이 '비허용'으로 설정되어 있어 변경이 불가능합니다.");
+                    }else{
+                        alert("서버 오류입니다.");
+                    }
+                });
+            });
+
+            layerAddButton.addEventListener("click", () => {
+                if (totalLayer >= 4) return;
+                fetch(workUrlWithoutId + `/scenes/${scene.id}/layer`, {method: "POST"})
+                .then(res => res.json())
+                .then(async (result) => {
+                    if(result.status === 200){
+                        totalLayer++;
+                        await createLayerElement(result.data);
+                    }else{
+                        alert("서버 오류입니다.");
+                    }
+                });
+            });
+
+
+            function goWorkPage() {
+                location.href = currentUrl.slice(0, currentUrl.lastIndexOf("/"));
+            }
+
+            function goAudioEditPage() {
+                location.href = currentUrl + `/audio?sno=${scene.sceneNumber}`;
+            }
+
+            function goLayerEditPage(layerId){
+                location.href = currentUrl  + `s/${scene.id}/layers/${layerId}`;
+            }
+
+            function moveToNextScene() {
+                location.href = currentUrl + `?sno=${nextSceneNumber}`;
+            }
+
+            function createNextScene() {
+                if(nextSceneNumber > 100){
+                    alert("마지막 장면입니다.");
+                }else{
+                    const create = confirm("다음 장면이 없습니다. 새로 만드시겠습니까?");
+                    if(!create) return;
+                    fetch(currentUrl, {method:`POST`})
+                    .then(res => res.json())
+                    .then(result => {
+                        if(result.code === "SUCCESS")
+                            location.href = currentUrl + `?sno=${nextSceneNumber}`;
+                        else
+                            alert('서버 오류입니다.');
+                    });
+                }
+            }
+
+            function moveToPrevScene() {
+                location.href = currentUrl + `?sno=${prevSceneNumber}`;
+            }
+
+            function alertFirstScene() {
+                alert('첫 장면입니다.');
+            }
+        </script>
+</body>
+</html>

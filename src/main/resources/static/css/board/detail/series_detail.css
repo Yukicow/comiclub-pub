@@ -1,0 +1,346 @@
+
+.detail-layout__wrap{
+    width: 1280px;
+    margin: auto;
+}
+
+.detail__cont{
+    padding: 30px 40px;
+}
+
+
+
+
+
+
+
+
+
+.series-head{
+    padding-bottom: 100px;
+}
+
+.series__thumbnail{
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+    background-color: rgb(196, 196, 196);
+}
+
+.series-info-cont__detail{
+    flex-grow: 1;
+    margin-left: 45px;
+}
+
+.detail__head{
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.detail__title{
+    font-size: 25px;
+    font-family: 'Nanum Gothic';
+    font-weight: 900;
+}
+
+.adult{
+    height: 25px;
+}
+
+.act-button-box{
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    .follow-button, .view-button{
+        margin-left: 20px;
+        height: 50px;
+        width: 150px;
+        border: none;
+        background-color: rgb(69, 155, 90);
+        border-radius: 5px;
+        color: white;
+        font-size: 19px;
+        font-family: 'KimjungchulGothic-Bold';
+        cursor: pointer;
+    }
+
+    .followed{
+        background-color: #83a68b;
+    }
+
+}
+
+.detail__writer{
+    margin-top: 10px;
+    font-family: 'SUIT-Regular';
+    font-size: 14px;
+    font-weight: 400;
+    color: rgb(151, 151, 151);
+}
+
+.detail__writer .writer{
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(19, 19, 19);
+    cursor: pointer;
+}
+
+.detail-option{
+    width: fit-content;
+    padding: 10px 5px;
+    margin-top: 15px;
+    background-color: rgb(234, 239, 255);
+    border-radius: 10px;
+}
+
+.option__box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0px 15px;
+}
+
+.option__box img{
+    height: 12px;
+}
+
+.option__box span{
+    font-size: 12px;
+    font-weight: bold;
+    color: gray;
+}
+
+.option__box div{
+    margin-top: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'MinSans-Regular';
+    color: rgb(63, 63, 63);
+}
+
+
+
+.detail__body{
+    margin-top: 20px;
+}
+
+.detail__desc{
+    width: 700px;
+    overflow: hidden;
+    line-height: 22px;
+    font-size: 15px;
+    font-family: 'SUIT-Regular';
+    white-space: pre-line;
+    max-height: 130px;
+}
+
+.expend{
+    max-height: fit-content;
+}
+
+.more-desc{
+    color: gray;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.detail__tag{
+    padding: 20px;
+    margin-top: 30px;
+    border-radius: 10px;
+    /* width: fit-content; */
+    border: 3px solid rgb(238, 238, 238);
+}
+
+.detail__tag span{
+    display: block;
+    padding-bottom: 15px;
+    width: 100%;
+    font-size: 17px;
+    font-weight: bold;
+    font-family: 'Gothic';
+}
+
+.tag__box{
+    overflow: hidden;
+    flex-wrap: wrap;
+}
+
+.tag{
+    margin: 10px 10px 0px 0px;
+    padding: 8px;
+    background-color: rgb(243, 243, 243);
+    border-radius: 5px;
+    margin-right: 15px;
+    color: rgb(88, 97, 223);
+    font-size: 15px;
+    font-family: 'KimjungchulGothic-Bold';
+    overflow: hidden;
+}
+
+
+
+
+
+
+
+.series-body{
+    padding-top: 50px;
+    border-top: 1px solid rgb(224, 224, 224);
+}
+
+
+.ep-cont{
+    margin-right: 40px;
+    width: 800px;
+}
+
+.ep__head{
+    padding-bottom: 25px;
+    border-bottom: 3px solid rgb(75, 75, 75);
+    font-size: 22px;
+    font-weight: bold;
+    font-family: 'NEXON Lv2 Gothic';
+}
+
+
+.ep__info{
+    padding: 15px 0px;
+    float: right;
+    font-size: 14px;
+    font-family: 'MinSans-Regular';
+    font-weight: bold;
+    color: gray;
+}
+
+.ep__item{
+    border-bottom: 1px solid rgb(214, 214, 214);
+    display: flex;
+    cursor: pointer;
+}
+
+.ep__thumb{
+    padding: 5px;
+}
+
+.ep__thumb img{
+    width: 125px;
+    height: 75px;
+    border-radius: 3px;
+    object-fit: cover;
+}
+
+.ep__title{
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    overflow: hidden;
+    margin-left: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    color: rgb(104, 104, 104);
+    font-family: 'IBMPlexSansKR-Regular';
+}
+
+.ep__adult{
+    height: 22px;
+    margin-top: 3px;
+    margin-right: 7px;
+}
+
+.paging-cont{
+    justify-content: center;
+}
+
+.page-button{
+    background-color: rgb(253, 253, 253);
+    border: 1px solid rgb(224, 224, 224);
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.page-button:hover{
+    background-color: rgb(245, 245, 245);
+}
+
+.page-on{
+    background-color: rgb(238, 238, 238) !important;
+}
+
+
+
+
+.recommend-cont{
+    width: 360px;
+}
+
+.recommend-cont__box{
+    min-height: 430px;
+}
+
+.recommend-cont__box:first-child{
+    margin-bottom: 50px;
+}
+
+.recommend-cont__head{
+    padding-bottom: 28px;
+    border-bottom: 2px solid rgb(197, 197, 197);
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'NEXON Lv2 Gothic';
+}
+
+
+.recommend-cont__body{
+    padding: 15px;
+}
+
+.other-work{
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.series-img{
+    height: 150px;
+    width: 100px;
+    border-radius: 5px;
+    object-fit: fill;
+}
+
+.work-img{
+    height: 100px;
+    width: 150px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.other-work__info-box{
+    padding: 5px 0px;
+}
+
+.other-work__title{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.other-work__title img{
+    height: 20px;
+}
+
+.other-work__tag{
+    color: rgb(86, 97, 202);
+    font-size: 15px;
+    font-weight: bold;
+    font-family: 'KimjungchulGothic-Bold';
+    line-height: 25px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+

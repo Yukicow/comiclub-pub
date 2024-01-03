@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <th:block th:fragment="common_css">
+        <link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/class_style.css">
+        <link rel="stylesheet" href="/css/font.css">
+        <link rel="stylesheet" href="/css/header.css">
+        <script>window.addEventListener("load", () => document.body.classList.remove("preload"));</script>
+        <style>
+        .preload{
+            transition: none !important;
+        }
+        </style>
+    </th:block>
+    <link th:fragment="footer_css" rel="stylesheet" href="/css/footer.css">
+
+
+</head>
+<body>
+    <th:block th:fragment="common_wrap(main, footer)">
+        <div id="wrap" style="min-width: 1400px">
+            <header th:with="auth=${#authentication.principal != 'anonymousUser'}, principal=${auth ? #authentication.principal : _ }">
+                <div class="flex nav-menu">
+                    <div class="nav-menu-cont">
+                        <a href="/" ><img src="/img/logo.png" id="logo"></a>
+
+                        <button th:id="adult-on-off" th:with="viewAdult=${auth ? principal.viewAdult : false }" th:classappend="${ viewAdult ? 'adult-on' : 'adult-off' }" th:text="${viewAdult ? '19 ON' : '19 OFF'}" onclick="changeViewAdult()"></button>
+                        <a class="nav-text" href="/clubs">클럽</a>
+                        <a class="nav-text" href="/series">연재작품</a>
+                        <a class="nav-text" href="/fwBoards">자유작품</a>
+                        <div id="menu-option__box" class="flex align-items-center justify-content-center">
+                            <div><button id="logout" th:if="${auth}">로그아웃</button></div>
+                            <div><a href="/mywork"><img class="option-icon mywork-icon" src="/img/workImg.png"></a></div>
+                            <div><a href="/member/follows"><img class="option-icon subscribe-icon" src="/img/subscribeImg.png"></a></div>
+                            <div><a th:href="${auth ? '/member/mypage' : '/login'}"><img class="option-icon" src="/img/userImg.png"></a></div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <th:block th:insert="${main}">
+
+            </th:block>
+
+            <footer th:replace="${footer}"></footer>
+        </div>
+        <script >
+            const logoutButton = document.getElementById('logout');
+            if(logoutButton){
+                logoutButton.addEventListener('click', () => {
+                    fetch("/logout", {
+                        method: 'post'
+                    })
+                    .then(res => {
+                        if(res.ok) location.reload();
+                    })
+                })
+            }
+
+            function changeViewAdult(){
+            fetch("/member/view-adult", {method: 'PATCH'})
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200) location.href = result.data;
+                else alert('성인 인증 후 가능합니다.');
+                })
+            }
+        </script>
+    </th:block>
+
+    <footer th:fragment="footer_layout"></footer>
+
+</body>
+</html>

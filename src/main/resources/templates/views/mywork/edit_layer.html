@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/mywork/edit_layer.css">
+    <link rel="stylesheet" href="/css/class_style.css">
+    <link rel="stylesheet" href="/css/reset.css">
+</head>
+<body>
+    <div id="wrap">
+        <div id="editor-cont">
+            <div id="main-editor">
+                <div class="img-shower">
+                    <div id="img-canvas"></div>
+                </div>
+                <div class="edit-option-cont" draggable="false">
+                    <div>
+                        <input id="img-file" type="file" accept="image/*" class="none" />
+                        <label class="option-button" for="img-file"
+                        >이미지 추가</label
+                        >
+                        <button class="option-button text-add-button">
+                            텍스트 추가
+                        </button>
+                        <button class="option-button edit-mode-changer">
+                            그리기
+                        </button>
+                        <div class="state-manage-box">
+                            <div class="state-manage-button undo-button">
+                                <img src="/img/canvas/undoImg.png" />
+                            </div>
+                            <div class="state-manage-button redo-button">
+                                <img src="/img/canvas/redoImg.png" />
+                            </div>
+                        </div>
+                        <div class="detail-option-box">
+                            <div class="drawing-option-box none">
+                                <div class="option">
+                                    <div>
+                                        <span>도구</span>
+                                        <select class="brush-selector">
+                                            <option value="brush" selected>
+                                                붓
+                                            </option>
+                                            <option value="erase">
+                                                지우개
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="option">
+                                    <div>
+                                        <span>색상</span>
+                                        <input
+                                                type="color"
+                                                class="brush-color-selector"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="option">
+                                    <div>
+                                        <span>굵기</span>
+                                        <input
+                                                type="number"
+                                                value="1"
+                                                class="brush-size-selector"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-selector">
+                            <ul class="item-list">
+                                <li><img class="rect" src="/img/canvas/rect.png" /></li>
+                                <li><img class="circle" src="/img/canvas/circle.png" /></li>
+                                <li><img class="ballon1" src="/img/canvas/ballon1.png" /></li>
+                                <li><img class="ballon2" src="/img/canvas/ballon2.png" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="layer-option-cont">
+                <div class="layer-option-box">
+                    <button class="prev-layer-button layer-option-button" th:attr="onclick=|${prevLayerId != null ? 'moveToPrevLayer()' : 'alertFirstLayer()'}|">이전 레이어</button>
+                    <button class="redirect-scene-button layer-option-button" onclick="redirectToScenePage()">장면 편집 페이지</button>
+                    <button class="save-button layer-option-button" onclick="saveLayer()">저장하기</button>
+                    <button class="redirect-work-button layer-option-button" onclick="redirectToWorkPage()">작품 페이지</button>
+                    <button class="next-layer-button layer-option-button" th:attr="onclick=|${nextLayerId != null ? 'moveToNextLayer()' : 'createNextLayer()'}|">다음 레이어</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <script src="/js/konva_editor.js"></script>
+    <script th:inline="javascript">
+
+        const saveButton = document.querySelector('.save-button');
+
+        const sceneId = [[${sceneId}]];
+        const sceneNumber = [[${sceneNumber}]];
+
+        const layer = [[${layer}]];
+        const nextLayerId = [[${nextLayerId}]];
+        const prevLayerId = [[${prevLayerId}]];
+        const nextLayerNumber = layer.layerNumber + 1;
+
+        const workUrl = [[${workUrl}]];
+        const workUrlWithoutId = workUrl.slice(0, workUrl.lastIndexOf("/"));
+        const currentUrl = location.href.split('?')[0];
+        const urlWithoutId = currentUrl.slice(0, currentUrl.lastIndexOf("/"));
+
+        let redirect = false;
+        let saving = false;
+
+        initEditor()
+        function initEditor() {
+            if(layer.imgFileUrl === null) return;
+            createKonvaImage(layer.imgFileUrl);
+        }
+
+        window.onbeforeunload = function () {
+            if(redirect) return;
+            return '페이지를 나갈 경우 현재까지 작업한 내용이 저장되지 않습니다.';
+        };
+
+        async function moveToNextLayer() {
+            if(saving) {
+                alert("이미지를 저장중입니다.");
+                return;
+            }
+
+            const nextLayerUrl = urlWithoutId + `/${nextLayerId}`;
+            await checkUnload(nextLayerUrl);
+        }
+
+        function createNextLayer() {
+            if(saving) {
+                alert("이미지를 저장중입니다.");
+                return;
+            }
+
+            if(nextLayerNumber > 4){
+                alert("마지막 레이어입니다.");
+            }else{
+                const create = confirm("다음 레이어가 없습니다. 새로 만드시겠습니까?");
+                if(!create) return;
+                fetch(workUrlWithoutId + `/scenes/${sceneId}/layer`, {method:`POST`})
+                .then(res => res.json())
+                .then(result => {
+                    if(result.code === "SUCCESS"){
+                        const nextLayerUrl = urlWithoutId + `/${result.data.id}`;
+                        checkUnload(nextLayerUrl);
+                    }else
+                        alert('서버 오류입니다.');
+                });
+            }
+        }
+
+        async function moveToPrevLayer() {
+            if(saving) {
+                alert("이미지를 저장중입니다.");
+                return;
+            }
+            const prevLayerUrl = urlWithoutId + `/${prevLayerId}`;
+            await checkUnload(prevLayerUrl);
+        }
+
+        function alertFirstLayer() {
+            alert('첫 레이어입니다.');
+        }
+
+        async function redirectToScenePage() {
+            if(saving) {
+                alert("이미지를 저장중입니다.");
+                return;
+            }
+            const scenePageUrl = workUrl + `/scene?sno=${sceneNumber}`;
+            await checkUnload(scenePageUrl);
+        }
+
+        async function redirectToWorkPage() {
+            if(saving) {
+                alert("이미지를 저장중입니다.");
+                return;
+            }
+            const scenePageUrl = workUrl;
+            await checkUnload(scenePageUrl);
+        }
+
+        async function checkUnload(redirectUrl){
+            if(layerChanged){
+                if(confirm("페이지를 나갈 경우 현재 작업 상태가 초기화 됩니다. \n저장 후 나가시겠습니까?")){
+                    await saveImage(redirectUrl);
+                }else{
+                    if(confirm("저장하지 않고 나가시겠습니까?")){
+                        redirect = true;
+                        location.href = redirectUrl;
+                    }
+                }
+            }else{
+                redirect = true;
+                location.href = redirectUrl;
+            }
+        }
+
+        async function saveLayer() {
+            if(saving) {
+                alert("이미지를 저장중입니다.");
+                return;
+            }
+
+            if(confirm("현재 상태를 저장하시겠습니까? \n(작업 상태가 초기화되며 이미지로 저장됩니다.)")){
+                await saveImage();
+            }
+        }
+
+        async function saveImage(redirectUrl) {
+            saving = true;
+            saveButton.classList.add("disabled");
+
+            const formData = new FormData();
+            const webp = await createImgFileBlob();
+            formData.append("imgFile", webp, "imgFile.webp");
+            fetch(workUrlWithoutId + `/scenes/layers/${layer.id}/image`, { method: 'PATCH', body:formData })
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    alert("저장이 완료되었습니다.");
+                    if(redirectUrl){
+                        redirect = true;
+                        location.href = redirectUrl;
+                    }else{
+                        layerChanged = false;
+                    }
+                }else{
+                    alert("서버 오류입니다. (저장에 실패하였습니다)");
+                }
+                saveButton.classList.remove("disabled");
+                saving = false;
+            });
+        }
+    </script>
+</body>
+</html>

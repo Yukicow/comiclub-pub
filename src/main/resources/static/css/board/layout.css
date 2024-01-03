@@ -1,0 +1,16 @@
+
+
+.board-layout__wrap{
+    width: 1280px;
+    padding: 40px 50px;
+    margin: auto;
+}
+
+.board-layout__main{
+    width: 980px;
+}
+
+.board-layout__side{
+    width: 240px; 
+    padding: 100px 30px;
+}

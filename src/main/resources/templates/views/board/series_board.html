@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/board/series_board.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/board/layout :: board_layout_css}"></div>
+    <div th:replace="~{views/common_layout :: footer_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{::footer})}">
+        <div th:replace="~{views/board/layout :: board_layout(~{::content})}" th:fragment="main">
+
+            <div th:fragment="content">
+                <div class="order-option-bar">
+                    <button th:classappend="${!#strings.equals(param.order, 'best')} ? on" class="order-button" onclick="searchLatest()">최신순</button>
+                    <button th:classappend="${#strings.equals(param.order, 'best')} ? on" class="order-button" onclick="searchBest()">인기순</button>
+                </div>
+                <div class="series-list__area">
+                    <div class="series-cont">
+                        <div class="series-list grid">
+                            <div class="series-box relative" th:each="series : ${page.content}" th:onclick="|location.href='/series/${series.id}'|">
+                                <div class="relative flex justify-content-center">
+                                    <div class="series-img relative">
+                                        <img class="adult" th:if="${series.adultOnly}" src="/img/adultOnlyImg.png">
+                                        <img th:src="${series.thumbnailUrl != null ? series.thumbnailUrl : '/img/noImageVer.png'}" class="series-thumb">
+                                    </div>
+                                    <div class="series-info">
+                                        <div class="series-info__detail">
+                                            <div class="detail-box">
+                                                <img src="/img/likeImg.png">
+                                                <span th:with="totalLike=${series.totalLike > 1000 ? (series.totalLike / 1000) + 'K' : series.totalLike}" th:text="${totalLike}">전체 좋아요</span>
+                                            </div>
+                                            <div class="detail-box">
+                                                <img src="/img/followImg.png">
+                                                <span th:with="totalFollower=${series.totalFollower > 1000 ? (series.totalFollower / 1000) + 'K' : series.totalFollower}" th:text="${totalFollower}">전체 팔로워</span>
+                                            </div>
+                                            <div class="detail-box">
+                                                <span style="font-size: 14px;">Ep.</span>
+                                                <span th:with="totalEp=${series.totalEpBoard > 1000 ? (series.totalEpBoard / 1000) + 'K' : series.totalEpBoard}" th:text="${totalEp}">전체 에피소드</span>
+                                            </div>
+                                        </div>
+                                        <div class="series-info__title" th:text="${series.name}">시리즈 이름</div>
+                                        <div class="series-info__story" th:text="${series.description}">스토리</div>
+                                    </div>
+                                </div>
+                                <div class="tag" ><span th:each="tag : ${series.tag}" th:text="|#${tag} |"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="board-option-cont">
+                    <div class="paging-cont"
+                         th:with="
+                             totalPage=${page.totalPages},
+                             pageNumber=${page.number},
+                             pageSize=${page.size},
+                             pageIndex=${pageNumber / 10 + 1},
+                             startPage=${pageIndex * 10 - 9},
+                             hasNextIndex=${totalPage - startPage >= 10},
+                             hasPrevIndex=${startPage - 10 >= 1},
+                             endPage=${hasNextIndex ? (pageIndex) * 10 : totalPage}"
+                         th:if="${startPage < endPage}"
+                    >
+                        <button class="prev-page-button page-button" th:if="${hasPrevIndex}" th:onclick="goPage(${startPage - 10})">&lt;</button>
+                        <th:block th:if="${totalPage != 0}" th:each="num : ${#numbers.sequence(startPage,endPage)}">
+                            <button class="page-button" th:classappend="${num == pageNumber + 1} ? 'page-on' : _" th:text="${num}" th:onclick="goPage(${num})"></button>
+                        </th:block>
+                        <button class="next-page-button page-button" th:if="${hasNextIndex}" th:onclick="goPage(${endPage + 1})">&gt;</button>
+                    </div>
+                    <div class="search-bar flex">
+                        <div class="search-box">
+                            <select class="search__option">
+                                <option value="name" th:selected="${#strings.equals(param.type, 'name')}">작품명</option>
+                                <option value="description" th:selected="${#strings.equals(param.type, 'description')}">줄거리</option>
+                                <option value="writer" th:selected="${#strings.equals(param.type, 'writer')}">작성자</option>
+                            </select>
+                            <input type="text" class="middle" placeholder="검색어 입력">
+                            <button class="search-button middle" onclick="searchSeries()"><img src="/img/searchImg.png"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{views/common_layout :: footer_layout}" th:fragment="footer"></footer>
+    </div>
+
+    <script th:inline="javascript">
+
+
+        const searchParams = new URLSearchParams(location.search);
+        const type = searchParams.get('type');
+        const keyword = searchParams.get('keyword');
+        const order = searchParams.get('order');
+
+        let queryString = "";
+        if(type) queryString = queryString + `type=${type}&`;
+        if(keyword) queryString = queryString + `keyword=${keyword}`;
+
+        function searchSeries() {
+            const typeSelector = document.querySelector('.search__option');
+            const type = typeSelector[typeSelector.selectedIndex].value
+            const keyword = document.querySelector('.search-bar input').value;
+            queryString = `type=${type}&keyword=${keyword}`;
+            if(order) queryString = queryString + `&order=${order}`;
+            location.href=`/series?${queryString}`;
+        }
+
+        function goPage(pageNum) {
+            if(order) queryString = queryString + `&order=${order}`;
+            location.href = `/series?${queryString}&page=${pageNum}`;
+        }
+
+        function searchLatest() {
+            location.href = `/series?${queryString}`;
+        }
+
+        function searchBest() {
+            location.href = `/series?${queryString}&order=best`;
+        }
+    </script>
+</body>
+</html>

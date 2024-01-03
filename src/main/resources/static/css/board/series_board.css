@@ -1,0 +1,154 @@
+
+
+
+
+.order-option-bar{
+    display: flex;
+    box-sizing: border-box;
+    height: 70px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+.order-button{
+    flex: 3;
+    background-color: white;
+    border: 0;
+    font-size: 18px;
+    font-family: 'Gothic';
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.on{
+    color: rgb(255, 157, 28);
+    border-bottom: 3px solid rgb(255, 157, 28);
+}
+
+
+
+
+.series-cont{
+    margin: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.series-list__area{
+    min-height: 650px;
+}
+
+.series-list{
+    grid-template-columns:  repeat(4, 1fr);
+    gap: 30px;
+    cursor: pointer;
+}
+
+
+.adult{
+    left: 5px;
+    top: 5px;
+    position: absolute;
+    height: 25px;
+}
+
+
+.series-thumb{
+    height: 300px;
+    width: 200px;
+    object-fit: cover;
+}
+
+.series-info{
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+    box-sizing: border-box;
+    height: 20%;
+    padding: 6px;
+    width: 200px;
+    background-color: rgba(99, 99, 99, 0.6);
+    backdrop-filter: blur(4px);
+    transition: all 0.5s ease-in-out;
+}
+
+.series-info__title{
+    overflow: hidden;
+    display: -webkit-box;
+    margin-bottom: 25px;
+    -webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    text-align: left;
+    font-size: 16px;
+    line-height: 150%;
+    font-family: 'KimjungchulGothic-Bold';
+    color: white;
+    height: fit-content;
+    text-shadow: 1px 1px 1px black;
+}
+
+.series-info__story{
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 9;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    text-align: left;
+    text-shadow: 1px 1px 1px black;
+    font-size: 15px;
+    line-height: 150%;
+    font-family: 'GmarketSansMedium';
+    color: rgb(240, 240, 240);
+    height: fit-content;
+    white-space: pre-line;
+}
+
+.series-info__detail{
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 7px;
+    text-shadow: 1px 1px 1px black;
+}
+
+.detail-box{
+    margin: 0px 10px 0px 5px;
+}
+
+.detail-box img{
+    height: 13px;
+}
+
+.detail-box span{
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+    color: white;
+}
+
+
+.series-box:hover .series-info__title{
+    height: fit-content;
+}
+
+.series-box:hover .series-info{
+    height: 100%;
+    background-color: rgba(99, 99, 99, 0.6);
+}
+
+.tag{
+    padding: 5px 15px 0px 15px;
+    line-height: 30px;
+    color: rgb(86, 97, 202);
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'KimjungchulGothic-Bold';
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+
+

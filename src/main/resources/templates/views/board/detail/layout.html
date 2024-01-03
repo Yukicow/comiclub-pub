@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <th:block th:fragment="board_detail_layout_css">
+    </th:block>
+</head>
+<body>
+    <th:block th:fragment="board_detail_layout(main)">
+            <div class="detail-layout__wrap" th:insert="${main}">
+
+            </div>
+    </th:block>
+</body>
+</html>

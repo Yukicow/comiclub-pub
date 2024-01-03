@@ -1,0 +1,535 @@
+
+
+
+
+
+.container {
+    display: flex;
+    background-color: rgb(51, 48, 62);
+    opacity: 95%;
+    height: 50px;
+    min-width: 1280px;
+    justify-items: center;
+    white-space: nowrap;
+}
+
+
+
+
+
+header{
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+    top: 0;
+}
+
+.option-box {
+    margin: 0 auto;
+    width: 80%;
+    height: 100%;
+    display: flex;
+}
+
+.option-item{
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Nanum Gothic';
+}
+
+.option-back{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    width: 190px;
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+.option-title{
+    color: rgb(217, 217, 217);
+    margin: auto;
+    text-overflow: ellipsis;
+    text-align: center;
+    overflow: hidden;
+    max-width: 400px;
+    white-space: nowrap;
+}
+
+.view-option{
+    display: flex;
+    float: right;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    width: 190px;
+}
+
+.view-option span{
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.view-option div{
+    color: gray;
+    cursor: pointer;
+}
+
+.view-option div:hover{
+    color: white;
+}
+
+.view-option img{
+    height: 20px;
+    cursor: pointer;
+}
+
+.view-mode-changer{
+    margin-left: auto;
+}
+
+
+
+.shower-cont{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 100px;
+}
+
+.shower-cont button{
+    flex-grow: 1;
+    cursor: pointer;
+    background-color: unset;
+}
+
+.shower-cont button img{
+    height: 100px;
+}
+
+.shower-box{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.vert-mode{
+    padding: 300px 0;
+}
+
+.shower{
+    width: 900px;
+    height: 600px;
+    object-fit: contain;
+}
+
+
+
+
+footer{
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+    bottom: 0;
+}
+
+.nav-list-box{
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.nav-item-box{
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-item-box:hover .nav-item{
+    color: rgb(255, 255, 255);
+}
+
+.nav-item{
+    font-size: 16px;
+    color: #c0c0c0;
+    font-family: 'Nanum Gothic';
+    font-weight: bold;
+}
+
+.disable{
+    color: gray;
+}
+
+.like{
+    color: rgb(229, 168, 178);
+}
+
+
+
+
+
+
+
+/*
+    Comment
+*/
+
+.comment-wrap{
+    padding-bottom: 100px;
+    width: 80%;
+    margin: 0px auto 100px auto;
+}
+
+.author-word-box{
+    padding: 15px 0px 50px 0px;
+}
+
+.author-word-box h4{
+    font-size: 14px;
+    font-weight: bold;
+    color: rgb(119, 119, 119);
+    margin-bottom: 20px;
+}
+
+.author-word-box p{
+    color: gray;
+    font-size: 13px;
+}
+
+.comment-cont{
+    padding-top: 30px;
+    border-top: 3px solid rgb(220, 220, 220);
+}
+
+.comment-count{
+    font-size: 14px;
+    font-weight: bold;
+    color: gray;
+    margin-bottom: 20px;
+}
+
+.comment-write-form{
+    border: 1px solid rgb(189, 189, 189);
+    border-radius: 4px;
+    padding: 20px;
+    background-color: rgb(250, 250, 250);
+}
+
+.comment-write-writer{
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.comment-write-area textarea{
+    box-sizing: border-box;
+    width: 100%;
+    height: 100px;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+    font-family: 'MinSans-Regular';
+}
+
+.comment-write-button{
+    float: right;
+    height: 40px;
+    width: 120px;
+    cursor: pointer;
+    background-color: rgb(0, 160, 21);
+    border: none;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.auth-box{
+    padding: 20px;
+    height: 50px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(80, 80, 80);
+    border-radius: 4px;
+    color: gray;
+    font-size: 15px;
+}
+
+.auth-box a{
+    color: rgb(62, 68, 177);
+    font-weight: bold;
+}
+
+
+
+
+.comment-body{
+    margin-top: 20px;
+}
+
+.comment-item-box{
+    position: relative;
+    padding: 15px 0px;
+    border-bottom: 1px solid rgb(212, 212, 212);
+}
+
+.comment-sub{
+    position: absolute;
+    right: 20px;
+    font-size: 18px;
+    color: gray;
+    letter-spacing: -10px;
+    cursor: pointer;
+}
+
+
+.comment-item-writer{
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.comment-item-date{
+    font-size: 12px;
+    color: gray;
+    margin-bottom: 15px;
+}
+
+.comment-item-content{
+    width: 900px;
+    min-height: 30px;
+    word-wrap: break-word;
+}
+
+.comment-item-option{
+    margin-top: 15px;
+}
+
+.comment-item-reply{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px 5px;
+    height: 23px;
+    border: 1px solid rgb(211, 211, 211);
+    border-radius: 3px;
+    background-color: rgb(252, 252, 252);
+    font-size: 11px;
+    color: rgb(87, 87, 87);
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.like-unlike{
+    margin-right: 10px;
+    padding: 3px 3px 6px 3px;
+    min-width: 35px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid rgb(211, 211, 211);
+    border-radius: 3px;
+    background-color: rgb(252, 252, 252);
+}
+
+.like-unlike span{
+    color: gray;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.like-unlike img{
+    height: 13px;
+}
+
+
+
+
+
+.reply-list-box li{
+    border-bottom: 1px solid rgb(212, 212, 212);
+    background-color: rgb(250, 250, 250);
+}
+
+.reply-boundary{
+    width: 60px;
+}
+
+
+.reply-item-box{
+    position: relative;
+    padding: 15px 0px;
+    flex-grow: 1;
+}
+
+.reply-shower{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(251, 251, 251);
+    height: 50px;
+    font-family: 'DosKor';
+    font-weight: bold;
+    cursor: pointer;
+    color: gray;
+    border-bottom: 1px solid rgb(212, 212, 212);
+}
+
+.reply-shower:hover{
+    background-color: rgb(237, 237, 237);
+    color: black;
+}
+
+
+
+
+.reply-write-form{
+    padding: 20px 0px;
+    background-color: rgb(250, 250, 250);
+    border-bottom: 1px solid rgb(212, 212, 212);
+}
+
+.reply-write-box{
+    padding: 0px 10px 0px 10px;
+}
+
+.reply-write-writer{
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.reply-write-area textarea{
+    box-sizing: border-box;
+    width: 100%;
+    height: 100px;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+    font-family: 'MinSans-Regular';
+}
+
+.reply-write-button{
+    float: right;
+    height: 40px;
+    width: 120px;
+    cursor: pointer;
+    background-color: rgb(0, 160, 21);
+    border: none;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+
+
+
+
+
+.modifying{ /* 댓글 수정 중일 때 보이지 않게할 Element에 적용 */
+    display: none !important;
+}
+
+.modify-box{
+    position: relative;
+    flex-grow: 1;
+}
+
+
+.modify-area textarea{
+    box-sizing: border-box;
+    width: 100%;
+    height: 100px;
+    resize: none;
+    padding: 15px;
+    font-size: 16px;
+    font-family: 'MinSans-Regular';
+}
+
+.modify-box button {
+    float: right;
+    height: 40px;
+    width: 120px;
+    cursor: pointer;
+    background-color: rgb(0, 160, 21);
+    border: none;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.modify-box button:first-child {
+    margin-right: 15px;
+}
+
+
+
+
+.modal{
+    position: absolute;
+    top: 40px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 70px;
+    width: 100px;
+    background-color: rgb(252, 252, 252);
+    border: 1px solid gray;
+    border-radius: 5px;
+    z-index: 999;
+}
+
+.option{
+    height: 35px;
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 1px solid gray;
+    cursor: pointer;
+}
+
+.option:hover{
+    background-color: rgb(238, 238, 238);
+}
+
+
+
+
+
+
+
+.paging-cont{
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+    gap: 5px;
+}
+
+.page-button{
+    height: 30px;
+    min-width: 30px;
+    font-size: 14px;
+    background-color: rgb(252, 252, 252);
+    border: 1px solid rgb(165, 165, 165);
+    cursor: pointer;
+}
+
+.page-button:hover{
+    background-color: rgb(236, 236, 236);
+}
+
+
+
+
+
+
+
+
+
+

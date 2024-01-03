@@ -1,0 +1,68 @@
+
+
+.wrap{
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(53, 53, 88);
+}
+
+
+.main{
+    width: 30rem;
+    margin: auto;
+}
+
+
+.error-code{
+    font-size: 140px;
+    font-weight: bold;
+    color: rgb(238, 238, 238);
+    text-align: center;
+}
+
+.error-code span{
+    color: rgb(200, 200, 200);
+}
+
+.error-content{
+    text-align: center;
+}
+
+.error-content h2{
+    font-size: 30px;
+    font-family: 'ONE-Mobile-Title';
+    color: white;
+    margin-top: 65px;
+}
+
+.error-content p{
+    font-size: 15px;
+    line-height: 25px;
+    font-family: 'NanumSquareNeo-Variable';
+    color: rgb(221, 221, 221);
+    margin-top: 30px;
+}
+
+.option-box{
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.option-box button{
+    height: 50px;
+    width: 180px;
+    padding: 10px;
+    border: 2px solid rgb(206, 197, 224);
+    border-radius: 10px;
+    background-color: rgb(65, 65, 65);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.option-box button:hover{
+    background-color: rgb(62, 50, 98);
+    color: white;
+}

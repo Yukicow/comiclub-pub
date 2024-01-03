@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/club/board_detail.css">
+    <div th:replace="~{views/club/layout :: common_css}"></div>
+    <div th:replace="~{views/common_layout :: footer_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{::footer})}">
+        <th:block th:replace="~{views/board/detail/layout :: board_detail_layout(~{::content})}" th:fragment="main">
+
+            <div class="detail-cont" th:fragment="content" th:with="auth=${#authentication.principal != 'anonymousUser'}, principal=${auth ? #authentication.principal : _ }">
+                <div class="board-head">
+                    <div class="board-topic"><a th:href="|/clubs/${club.id}|" th:text="${club.clubName}"></a></div>
+                    <div class="board-info">
+                        <div class="board-option-button" th:attr="data-id=${board.id}" onclick="showBoardOption(event)">ㆍㆍㆍ</div>
+                        <div class="board-option-modal modal none" th:attr="data-id=${board.id}" >
+                            <div class="option flex justify-content-center align-items-center" onclick="modifyBoard()">수정하기</div>
+                            <div class="option flex justify-content-center align-items-center" onclick="deleteBoard()">삭제하기</div>
+                        </div>
+                        <div class="board-title" th:text="${board.title}">제목</div>
+                        <div class="board-writer" th:text="${board.writer}">작성자</div>
+                        <div class="board-detail">
+                            <div class="detail-date detail" th:text="|작성일 : ${{board.createdDate}}|">작성일</div>
+                            <div class="detail-like detail" th:text="|추천 : ${board.totalLike}|">추천수</div>
+                            <div class="detail-viewer detail" th:text="|조회 : ${board.totalView}|">조회수</div>
+                        </div>
+                    </div>
+                </div>
+                <th:block class="board-body">
+                    <div class="board-content-wrap">
+                        <div class="board-content" th:utext="${board.content}"></div>
+                        <div class="board-like-cont">
+                            <div class="board-like-box">
+                                <div class="board-like-count" th:text="${board.totalLike}">추천수</div>
+                                <div class="board-like-button" onclick="likeBoard()">추천</div>
+                            </div>
+                        </div>
+                    </div>
+                    <th:block class="board-comment-wrap">
+                        <div class="board-comment-head">
+                            <div class="comment-count" th:text="|총 ${board.totalComment}개의 댓글|">총 댓글 수</div>
+                            <div class="comment-write-form">
+                                <div class="comment-write-area" th:if="${auth}">
+                                    <div class="comment-write-writer" th:text="${principal.nickname}">작성자</div>
+                                    <textarea maxlength="1000" spellcheck="false"></textarea>
+                                    <div style="height: 40px;padding-top: 10px;">
+                                        <button class="comment-write-button" style="justify-content: right;" onclick="writeComment()">작성</button>
+                                    </div>
+                                </div>
+                                <div class="auth-box" th:if="${!auth}">
+                                    <a href="/login">로그인</a>후 이용해 주세요
+                                </div>
+                            </div>
+                        </div>
+                        <div class="board-comment-body">
+                            <div class="comment-list-box">
+                                <ul>
+                                    <li class="comment-item" th:each="comment : ${page.content}" th:attr="data-id=${comment.id}">
+                                        <div class="comment-item-box">
+                                            <div class="comment-sub" th:attr="data-id=${comment.id}" onclick="showCommentOption(event)">ㆍㆍㆍ</div>
+                                            <div class="comment-option-modal modal none" th:attr="data-id=${comment.id}" >
+                                                <div class="option flex justify-content-center align-items-center" th:attr="data-id=${comment.id}" onclick="showModifier(this)">수정하기</div>
+                                                <div class="option flex justify-content-center align-items-center" th:attr="data-id=${comment.id}" onclick="deleteComment(this)">삭제하기</div>
+                                            </div>
+                                            <div class="comment-item-writer" th:text="${comment.writer}">작성자</div>
+                                            <div class="comment-item-date" th:text="${{comment.createdDate}}">2023-03-27 23:00</div>
+                                            <div class="comment-item-content" th:text="${comment.content}">드디어 돌아왔구나 박태식이 드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이드디어 돌아왔구나 박태식이</div>
+                                            <div class="modify-box none">
+                                                <div class="modify-area">
+                                                    <textarea maxlength="1000" spellcheck="false"></textarea>
+                                                </div>
+                                                <div class="flex" style="justify-content: right;">
+                                                    <button class="mod-apply-button" style="justify-content: right;" th:attr="data-id=${comment.id}" onclick="modifyComment(this)">수정</button>
+                                                    <button class="mod-apply-button" style="justify-content: right;" th:attr="data-id=${comment.id}" onclick="showModifier(this)">취소</button>
+                                                </div>
+                                            </div>
+                                            <div class="comment-item-option flex">
+                                                <div class="comment-item-reply" th:attr="data-id=${comment.id}, data-first=${comment.totalReply == 0 ? 'false' : 'true'}" onclick="showReplies(this)" th:text="|답글 ${comment.totalReply}개|">총 답글 수</div>
+                                                <div class="flex grow align-items-center" >
+                                                    <div class="comment-item-like like-unlike" th:attr="data-id=${comment.id}" onclick="likeComment(this)">
+                                                        <img src="/img/likeImg.png">
+                                                        <span th:text="${comment.totalLike}">추천 수</span>
+                                                    </div>
+                                                    <div class="comment-item-unlike like-unlike" th:attr="data-id=${comment.id}" onclick="unlikeComment(this)">
+                                                        <img src="/img/unlikeImg.png">
+                                                        <span th:text="${comment.totalUnlike}">비추천 수</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="reply-list-box none" th:attr="data-id=${comment.id}">
+                                            <ul>
+                                                <div class="reply-write-form flex">
+                                                    <div class="reply-boundary"></div>
+                                                    <div class="reply-write-box grow">
+                                                        <div class="comment-item-writer" th:if="${auth}" th:text="${principal.nickname}" >작성자</div>
+                                                        <div class="reply-write-area" th:attr="data-id=${comment.id}" th:if="${auth}">
+                                                            <textarea maxlength="1000" spellcheck="false" ></textarea>
+                                                            <div style="height: 40px;padding-top: 10px;">
+                                                                <button class="reply-write-button" th:attr="data-id=${comment.id}" onclick="writeReply(this)" style="justify-content: right;">작성</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="auth-box" th:if="${!auth}">
+                                                            <a href="/login">로그인</a>후 이용해 주세요
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="reply-shower" th:attr="data-id=${comment.id}, data-next-page=${comment.totalReply == 0 ? 'none' : '1'}" onclick="showMoreReplies(this)">댓글 더 보기</div>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <th:block
+                             th:with="
+                             totalPage=${page.totalPages},
+                             pageNumber=${page.number},
+                             pageSize=${page.size},
+                             pageIndex=${pageNumber / 10 + 1},
+                             startPage=${pageIndex * 10 - 9},
+                             hasNextIndex=${totalPage - startPage >= 10},
+                             hasPrevIndex=${startPage - 10 >= 1},
+                             endPage=${hasNextIndex ? (pageIndex) * 10 : totalPage}"
+                        >
+                            <div class="paging-cont" th:if="${startPage < endPage}">
+                                <button class="prev-page-button page-button" th:if="${hasPrevIndex}" th:onclick="|location.href='/clubs/${club.id}/boards/${board.id}?page=${startPage - 10}'|">&lt;</button>
+                                <th:block th:if="${totalPage != 0}" th:each="num : ${#numbers.sequence(startPage,endPage)}">
+                                    <button class="page-button" th:classappend="${num == pageNumber + 1} ? 'page-on' : _" th:text="${num}" th:attr="data-number=${num}" onclick="fetchComment(this)" ></button>
+                                </th:block>
+                                <button class="next-page-button page-button" th:if="${hasNextIndex}" th:onclick="|location.href='/clubs/${club.id}/boards/${board.id}?page=${endPage + 1}'|">&gt;</button>
+                            </div>
+                        </th:block>
+                    </th:block>
+                </th:block>
+            </div>
+        </th:block>
+        <footer th:replace="~{views/common_layout :: footer_layout}" th:fragment="footer"></footer>
+    </div>
+    <script th:inline="javascript">
+        const clubId = "[[${club.id}]]";
+        const boardId = "[[${board.id}]]";
+
+        document.addEventListener('click', unShowModal);
+        function unShowModal() { // modal은 display가 none인 것이기 때문에 실제 존재하는 건 하나가 아니라서 무조건 foreach를 돌려야 함
+            document.querySelectorAll('.modal').forEach( (modal) => modal.classList.add('none') );
+        }
+
+        function showReplies(target) {
+            const commentId = target.dataset.id;
+            const allReplyBox = document.querySelectorAll(`.reply-list-box`);
+            const replyBox = document.querySelector(`.reply-list-box[data-id='${commentId}']`);
+            allReplyBox.forEach(box => { if(box !== replyBox) box.classList.add('none') });
+            replyBox.classList.toggle('none');
+            if(target.dataset.first == "true"){
+                target.dataset.first = "false";
+                fetchReplies(commentId, 0);
+            }
+        }
+
+        function showCommentOption(e) {
+            e.stopPropagation();
+            document.querySelectorAll('.modal').forEach( (modal) => modal.classList.add('none') );
+            const commentId = e.target.dataset.id;
+            const modal = document.querySelector(`.comment-option-modal[data-id='${commentId}']`);
+            modal.classList.toggle('none');
+        }
+
+        function deleteComment(target) {
+            const yes = confirm('댓글을 삭제하시겠습니까?');
+            if(!yes) return;
+            const commentId = target.dataset.id;
+            fetch(`/club/board/comments/${commentId}`, {method: 'DELETE'})
+            .then( res => res.json() )
+            .then(result => {
+                if(result.status === 200){
+                    alert('댓글이 삭제되었습니다.');
+                    const comment = document.querySelector(`.comment-item[data-id='${commentId}']`);
+                    comment.remove();
+                    decreaseTotalComment(result.data.totalReply);
+                    decreaseTotalReply(result.data.motherId);
+                }else if(result.status === 401){
+                    alert('로그인 후 이용가능합니다.');
+                }else if(result.status === 403){
+                    alert('권한이 없습니다.');
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            })
+        }
+
+         function showModifier(target) {
+            const commentId = target.dataset.id;
+            fetch(`/club/board/comments/${commentId}/auth`)
+            .then( res => {
+                if(res.ok){
+                    showModifyBox(commentId);
+                }else{
+                    alert('권한이 없습니다.');
+                }
+            })
+        }
+
+        function showModifyBox(commentId) {
+            const commentSub = document.querySelector(`.comment-item[data-id='${commentId}'] .comment-sub`);
+            const commentContent = document.querySelector(`.comment-item[data-id='${commentId}'] .comment-item-content`);
+            const commentOption = document.querySelector(`.comment-item[data-id='${commentId}'] .comment-item-option`);
+            const modifyBox = document.querySelector(`.comment-item[data-id='${commentId}'] .modify-box`);
+            const textarea = document.querySelector(`.comment-item[data-id='${commentId}'] .modify-box textarea`);
+
+            commentSub.classList.toggle('none');
+            commentContent.classList.toggle('none');
+            commentOption.classList.toggle('none');
+            modifyBox.classList.toggle('none');
+            textarea.innerText = commentContent.innerText;
+        }
+
+        function modifyComment(target) {
+            const commentId = target.dataset.id;
+            const commentContent = document.querySelector(`.comment-item[data-id='${commentId}'] .comment-item-content`);
+            const textarea = document.querySelector(`.comment-item[data-id='${commentId}'] .modify-box textarea`);
+
+            fetch(`/club/board/comments/${commentId}`,{
+                method: 'PATCH',
+                body: textarea.value
+            }).then( res => {
+                if(res.ok){
+                    commentContent.innerText = textarea.value;
+                    showModifyBox(commentId);
+                }else{
+                    alert('서버 오류입니다.')
+                }
+            })
+        }
+
+        function showMoreReplies(target) {
+            const commentId = target.dataset.id;
+            const nextPage = target.dataset.nextPage;
+            if(nextPage !== "none") fetchReplies(commentId, nextPage);
+        }
+
+
+        function writeComment() {
+            const textarea = document.querySelector('.comment-write-area textarea');
+            fetch(`/club/boards/${boardId}/comment`, {
+                method: 'POST',
+                body: textarea.value
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    textarea.value = "";
+                    alert('댓글이 등록되었습니다.')
+                    const searchParams = new URLSearchParams(location.search);
+                    const page = searchParams.get('page');
+                    if(page === '1' || !page){
+                        createComment(result.data);
+                        increaseTotalComment();
+                    }
+                }else{
+                    alert('잘못된 요청입니다.');
+                }
+            })
+        }
+
+
+        function writeReply(target) {
+            const commentId = target.dataset.id;
+            const textarea = document.querySelector(`.reply-write-area[data-id='${commentId}'] textarea`);
+            fetch(`/club/boards/${boardId}/comments/${commentId}/reply`, {
+                method: 'POST',
+                body: textarea.value
+            })
+            .then( res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    textarea.value = "";
+                    alert('댓글이 등록되었습니다.')
+                    const replyBox = document.querySelector(`.reply-list-box[data-id='${commentId}'] ul`);
+                    const replyElement = createReply(commentId, result.data);
+                    replyBox.prepend(replyElement);
+                    increaseTotalComment();
+                    increaseTotalReply(commentId);
+                }else{
+                    alert('잘못된 요청입니다.');
+                }
+            })
+        }
+
+
+        function fetchReplies(commentId, nextPage) {
+            fetch(`/club/boards/${boardId}/comments/${commentId}/replies?page=${nextPage}`)
+            .then(res => res.json())
+            .then(result => {
+                const shower = document.querySelector(`.reply-shower[data-id='${commentId}']`);
+                if(result.code == "NO_NEXT"){
+                    shower.dataset.nextPage = "none";
+                    shower.classList.add = "none";
+                }else{
+                    const currentPage = parseInt(shower.dataset.nextPage);
+                    shower.dataset.nextPage = currentPage + 1;
+                }
+                result.data.forEach((reply) => {
+                    const replyBox = document.querySelector(`.reply-list-box[data-id='${commentId}'] ul`);
+                    const writeForm = document.querySelector(`.reply-list-box[data-id='${commentId}'] .reply-write-form`);
+                    const replyElement = createReply(commentId, reply)
+                    replyBox.insertBefore(replyElement, writeForm);
+                });
+            })
+        }
+
+
+        function createReply(commentId, reply) {
+            const replyId = reply.id;
+            const replyElement = document.createElement('li');
+            replyElement.classList.add('comment-item' ,'flex')
+            replyElement.dataset.id = replyId;
+            replyElement.innerHTML = `
+            <div class="reply-boundary"></div>
+            <div class="reply-item-box">
+                <div class="comment-sub" data-id="${replyId}" onclick="showCommentOption(event)">ㆍㆍㆍ</div>
+                <div class="comment-option-modal modal none" data-id="${replyId}">
+                    <div class="option flex justify-content-center align-items-center" data-id="${replyId}" onclick="showModifier(this)">수정하기</div>
+                    <div class="option flex justify-content-center align-items-center" data-id="${replyId}" onclick="deleteComment(this)">삭제하기</div>
+                </div>
+                <div class="comment-item-writer">${reply.writer}</div>
+                <div class="comment-item-date">${reply.createdDate}</div>
+                <div class="comment-item-content"></div>
+                <div class="modify-box none">
+                    <div class="modify-area">
+                        <textarea spellcheck="false"></textarea>
+                    </div>
+                    <div class="flex" style="justify-content: right;">
+                        <button class="mod-apply-button" style="justify-content: right;" data-id="${replyId}" onclick="modifyComment(this)">수정</button>
+                        <button class="mod-apply-button" style="justify-content: right;" data-id="${replyId}" onclick="showModifier(this)">취소</button>
+                    </div>
+                </div>
+                <div class="comment-item-option flex">
+                    <div class="flex grow align-items-center">
+                        <div class="comment-item-like like-unlike" data-id="${replyId}" onclick="likeComment(this)">
+                            <img src="/img/likeImg.png">
+                            <span>${reply.totalLike}</span>
+                        </div>
+                        <div class="comment-item-unlike like-unlike" data-id="${replyId}" onclick="unlikeComment(this)">
+                            <img src="/img/unlikeImg.png">
+                            <span>${reply.totalUnlike}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+            const contentArea = replyElement.querySelector(".comment-item-content");
+            contentArea.textContent = reply.content;
+            return replyElement;
+        }
+
+
+        function fetchComment(target) {
+            fetch(`/club/boards/${boardId}/comments?page=${target.dataset.number}`)
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 200){
+                    const commentBox = document.querySelector(`.comment-list-box ul`);
+                    commentBox.innerText ='';
+                    result.data.forEach(comment => {
+                        createComment(comment);
+                    });
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            });
+        }
+
+        function createComment(data) {
+            const commentBox = document.querySelector(`.comment-list-box ul`);
+            const commentElement = document.createElement('li');
+            const commentId = data.id;
+            commentElement.classList.add('comment-item')
+            commentElement.dataset.id = commentId;
+            commentElement.innerHTML = `
+                <div class="comment-item-box">
+                    <div class="comment-sub" data-id=${commentId} onclick="showCommentOption(event)">ㆍㆍㆍ</div>
+                    <div class="comment-option-modal modal none" data-id=${commentId} >
+                        <div class="option flex justify-content-center align-items-center" data-id=${commentId} onclick="showModifier(this)">수정하기</div>
+                        <div class="option flex justify-content-center align-items-center" data-id=${commentId} onclick="deleteComment(this)">삭제하기</div>
+                    </div>
+                    <div class="comment-item-writer">${data.writer}</div>
+                    <div class="comment-item-date">${data.createdDate}</div>
+                    <div class="comment-item-content"></div>
+                    <div class="modify-box none">
+                        <div class="modify-area">
+                            <textarea spellcheck="false"></textarea>
+                        </div>
+                        <div class="flex" style="justify-content: right;">
+                            <button class="mod-apply-button" style="justify-content: right;" data-id=${commentId} onclick="modifyComment(this)">수정</button>
+                            <button class="mod-apply-button" style="justify-content: right;" data-id=${commentId} onclick="showModifier(this)">취소</button>
+                        </div>
+                    </div>
+                    <div class="comment-item-option flex">
+                        <div class="comment-item-reply" data-id=${commentId} data-first="false" onclick="showReplies(this)">답글 ${data.totalLike}개</div>
+                        <div class="flex grow align-items-center" >
+                            <div class="comment-item-like like-unlike" data-id="${commentId}" onclick="increaseCommentTotalLike(this)">
+                                <img src="/img/likeImg.png">
+                                <span>${data.totalLike}</span>
+                            </div>
+                            <div class="comment-item-unlike like-unlike" data-id="${commentId}" onclick="unlikeComment(this)">
+                                <img src="/img/unlikeImg.png">
+                                <span>${data.totalUnlike}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reply-list-box none" data-id=${commentId}>
+                    <ul>
+                        <div class="reply-write-form flex">
+                            <div class="reply-boundary"></div>
+                            <div class="reply-write-box grow">
+                                <div class="comment-item-writer">${data.writer}</div>
+                                <div class="reply-write-area" data-id=${commentId}>
+                                    <textarea spellcheck="false"></textarea>
+                                    <div style="height: 40px;padding-top: 10px;">
+                                        <button class="reply-write-button" data-id=${commentId} onclick="writeReply(this)" style="justify-content: right;">작성</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reply-shower" data-id=${commentId} data-next-page="none" onclick="showMoreReplies(this)">댓글 더 보기</div>
+                    </ul>
+                </div>`
+            const contentArea = commentElement.querySelector(".comment-item-content");
+            contentArea.textContent = data.content;
+            commentBox.prepend(commentElement);
+        }
+
+        function increaseTotalComment() {
+            const totalComment = document.querySelector(`.comment-count`);
+            const num = extractNum(totalComment.innerText);
+            totalComment.innerText = `총 ${num + 1}개의 댓글`;
+        }
+
+        function increaseTotalReply(commentId) {
+            const replyShower = document.querySelector(`.comment-item-reply[data-id='${commentId}']`);
+            const num = extractNum(replyShower.innerText);
+            replyShower.innerText = `답글 ${num + 1}개`;
+        }
+
+        function decreaseTotalComment(amount) {
+            const totalComment = document.querySelector(`.comment-count`);
+            const num = extractNum(totalComment.innerText);
+            totalComment.innerText = `총 ${num - amount}개의 댓글`;
+        }
+
+        function decreaseTotalReply(commentId) {
+            const replyShower = document.querySelector(`.comment-item-reply[data-id='${commentId}']`);
+            if(!replyShower) return; // delete시에 reply가 아닌 경우
+            const num = extractNum(replyShower.innerText);
+            replyShower.innerText = `답글 ${num - 1}개`;
+        }
+
+        function extractNum(str) {
+            const regex = /[^0-9]/g;
+            const result = str.replace(regex, "");
+            return parseInt(result);
+        }
+
+
+
+
+        function likeComment(target) {
+            const commentId = target.dataset.id;
+            fetch(`/club/board/comments/${commentId}/like`, {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(result => {
+                const status = result.status;
+                if(status === 200){
+                    const totalLike = document.querySelector(`.comment-item-like[data-id='${commentId}'] span`);
+                    if(result.code === "INCREASE"){
+                        totalLike.innerText = parseInt(totalLike.innerText) + 1;
+                    }else{
+                        totalLike.innerText = parseInt(totalLike.innerText) - 1;
+                    }
+                }else if(status === 401){
+                    alert('로그인 후 이용해 주세요.');
+                    location.href = `/login`;
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            })
+        }
+
+        function unlikeComment(target) {
+            const commentId = target.dataset.id;
+            fetch(`/club/board/comments/${commentId}/unlike`, {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(result => {
+                const status = result.status;
+                if(status === 200){
+                    const totalUnlike = document.querySelector(`.comment-item-unlike[data-id='${commentId}'] span`);
+                    if(result.code === "INCREASE"){
+                        totalUnlike.innerText = parseInt(totalUnlike.innerText) + 1;
+                    }else{
+                        totalUnlike.innerText = parseInt(totalUnlike.innerText) - 1;
+                    }
+                }else if(status === 401){
+                    alert('로그인 후 이용해 주세요.');
+                    location.href = `/login`;
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            })
+        }
+
+
+
+
+        /**
+         * FreeBoard관련 옵션
+         * 이 옵션들은 FreeBoard에서만 쓰임
+        */
+
+        function showBoardOption(e) {
+            e.stopPropagation();
+            const modal = document.querySelector(`.board-option-modal`);
+            modal.classList.toggle('none');
+        }
+
+        function modifyBoard() {
+            const yes = confirm('게시글을 수정하시겠습니까?');
+            if(!yes) return;
+
+            fetch(`/clubs/${clubId}/boards/${boardId}/auth`, {method: 'POST'})
+            .then(res => {
+                if(res.status === 200){
+                    location.href=`/clubs/${clubId}/boards/${boardId}/info`;
+                }else if(res.status === 401){
+                    const password = prompt('게시물 비밀번호를 입력해 주세요.');
+                    fetch(`/clubs/${clubId}/boards/${boardId}/auth`, {method: 'POST', body: password})
+                    .then(res => {
+                        if(res.ok) {
+                            location.href=`/clubs/${clubId}/boards/${boardId}/info`;
+                        }else {
+                            alert('비밀번호가 잘못되었습니다.');
+                        }
+                    })
+                }else if(res.status === 403){
+                    alert('권한이 없습니다.');
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            })
+        }
+
+        function deleteBoard() {
+            const yes = confirm('게시글을 삭제하시겠습니까?');
+            if(!yes) return;
+            fetch(`/club/boards/${boardId}`, {method: 'DELETE'})
+            .then(res => {
+                if(res.status === 200){
+                    alert('게시글이 삭제되었습니다.');
+                    location.href=`/clubs/${clubId}`;
+                }else if(res.status === 401){
+                    const password = prompt('게시물 비밀번호를 입력해 주세요.');
+                    fetch(`/club/boards/${boardId}`, {method: 'DELETE', body: password})
+                    .then(res => {
+                        if(res.ok) {
+                            alert('게시글이 삭제되었습니다.');
+                            location.href=`/clubs/${clubId}`;
+                        }else {
+                            alert('비밀번호가 잘못되었습니다.')
+                        }
+                    })
+                }else if(res.status === 403){
+                    alert('권한이 없습니다.');
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            })
+        }
+
+        function likeBoard() {
+            fetch(`/club/boards/${boardId}/like`, {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(result => {
+                const status = result.status;
+                if(status === 200){
+                    const totalLike = document.querySelector(`.board-like-count`);
+                    if(result.code === "INCREASE"){
+                        totalLike.innerText = parseInt(totalLike.innerText) + 1;
+                    }else{
+                        totalLike.innerText = parseInt(totalLike.innerText) - 1;
+                    }
+                }else if(status === 401){
+                    alert('로그인 후 이용해 주세요.');
+                    location.href = `/login`;
+                }else{
+                    alert('서버 오류입니다.');
+                }
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <div th:replace="~{views/admin/layout :: common_css}"></div>
+</head>
+<body>
+<div id="wrap">
+    <div id="side-nav">
+        <div class="nav-cont">
+            <div class="logo-box">
+                <a href="/">
+                    <img src="/img/logo.png">
+                </a>
+            </div>
+            <a href="/admin/board/free"><button>클럽 게시글</button></a>
+            <a href="/admin/work/series"><button>연재 작품</button></a>
+            <a href="/admin/work/free"><button class="selected">자유 작품</button></a>
+        </div>
+    </div>
+    <div id="main-wrap">
+        <main>
+            <div class="search-bar flex">
+                <div class="search-box">
+                    <select class="type-selector">
+                        <option value="title" th:selected="${#strings.equals(param.type, 'title')}">제목</option>
+                        <option value="writer" th:selected="${#strings.equals(param.type, 'writer')}">작성자</option>
+                    </select>
+                    <input type="text" class="keyword-input" placeholder="검색어 입력">
+                    <button class="search-button middle" onclick="search()"><img src="/img/searchImg.png"></button>
+                </div>
+            </div>
+            <div id="item-list-cont">
+                <div class="list-head">
+                    <span class="b-num">ID</span>
+                    <span class="b-title">제목</span>
+                    <span class="b-writer">작성자</span>
+                    <span class="b-date">날짜</span>
+                    <span class="b-pub">공개 여부</span>
+                    <span class="b-delete">삭제</span>
+                </div>
+                <ul class="normal-list list-body">
+                    <li th:each="board : ${page.content}" th:attr="data-id=${board.id}">
+                        <div class="list-item">
+                            <div class="b-num" th:text="${board.id}">번호</div>
+                            <div class="b-title" th:onclick="|location.href='/board/free/${board.id}'|" >
+                                <div>
+                                    <img th:if="${board.adultOnly}" src="/img/adultOnlyImg.png">
+                                    <span th:text="${board.title}">제목</span>
+                                </div>
+                            </div>
+                            <div class="b-writer" th:text="${board.writer}">작성자</div>
+                            <div class="b-date" th:text="${{board.createdDate}}">작성일</div>
+                            <div class="b-pub"><button class="pub-button" th:text="${board.pub ? '공개' : '비공개'}" th:attr="onclick=${board.pub ? 'closeBoard(' + board.id + ')' : _}">공개여부</button></div>
+                            <div class="b-delete"><button class="delete-button" th:onclick="|deleteBoard(${board.id})|">삭제</button></div>
+                        </div>
+                    </li>
+                </ul>
+                <th:block th:with="
+                                        totalPage=${page.totalPages},
+                                        pageNumber=${page.number},
+                                        pageSize=${page.size},
+                                        pageIndex=${pageNumber / 10 + 1},
+                                        startPage=${pageIndex * 10 - 9},
+                                        hasNextIndex=${totalPage - startPage >= 10},
+                                        hasPrevIndex=${startPage - 10 >= 1},
+                                        endPage=${hasNextIndex ? (pageIndex) * 10 : totalPage}"
+                >
+                    <div class="paging-cont flex" th:if="${startPage < endPage}">
+                        <button class="prev-page-button page-button" th:if="${hasPrevIndex}" th:onclick="|goPage(${startPage - 10})|">&lt;</button>
+                        <th:block th:if="${totalPage != 0}" th:each="num : ${#numbers.sequence(startPage,endPage)}">
+                            <button class="page-button" th:classappend="${num == pageNumber + 1} ? 'page-on' : _" th:text="${num}" th:onclick="|goPage(${num})|"></button>
+                        </th:block>
+                        <button class="next-page-button page-button" th:if="${hasNextIndex}" th:onclick="|goPage(${endPage + 1})|">&gt;</button>
+                    </div>
+                </th:block>
+            </div>
+        </main>
+    </div>
+</div>
+<script>
+
+        const typeSelector = document.querySelector(".type-selector");
+        const keywordInput = document.querySelector(".keyword-input");
+        const searchButton = document.querySelector(".search-button");
+
+
+
+        searchButton.addEventListener("click", () => {search();});
+
+        keywordInput.addEventListener('keydown', function(event) {
+        const keyCode = event.keyCode || event.which;
+            if (keyCode === 13) {
+                search();
+            }
+        });
+
+        function search() {
+            location.href = `/admin/work/free?type=${typeSelector.value}&keyword=${keywordInput.value}`;
+        }
+
+        function deleteBoard(boardId) {
+            if(!confirm("해당 게시물을 삭제합니다.")) return;
+            fetch(`/admin/work/series/${boardId}`, {method: 'DELETE'})
+            .then(res => {
+                if(res.ok){
+                    document.querySelector(`.normal-list li[data-id='${boardId}']`).remove();
+                    alert("삭제되었습니다.");
+                }else{
+                    alert("서버 오류입니다.");
+                }
+            });
+        }
+
+        function closeBoard(boardId) {
+            if(!confirm("해당 게시물을 비공개로 전환합니다.")) return;
+            fetch(`/admin/work/free/${boardId}`, {method: 'PATCH'})
+            .then(res => {
+                if(res.ok){
+                    const pubButton = document.querySelector(`.normal-list li[data-id='${boardId}'] .pub-button`);
+                    pubButton.textContent = '비공개';
+                    pubButton.onclick = undefined;
+                    alert("게시물을 비공개로 전환했습니다.");
+                }else{
+                    alert("서버 오류입니다.");
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/class_style.css">
+    <link rel="stylesheet" href="/css/join.css">
+
+</head>
+<body>
+    <div id="wrap">
+        <div  style="margin: auto;">
+            <div class="logo flex justify-content-center">
+                <a href="/"><img src="/img/logo.png"></a>
+            </div>
+            <div id="join__cont">
+                <form id="join__form">
+                    <h2>회원가입</h2>
+                    <div class="input__box">
+                        <input type="text" class="input-nk" name="nickname" placeholder="닉네임" maxlength="15">
+                        <span class="error error-nk" style="display: none;">최소 2자 최대 15자로 이루어져야 합니다. (띄어쓰기 불가)</span>
+                        <input type="text" class="input-id" name="loginId" placeholder="아이디" maxlength="30">
+                        <span class="error error-id" style="display: none;">최소 6자 최대 30자로 이루어져야 합니다. (띄어쓰기 불가)</span>
+                        <input type="password" class="input-pw" name="password" placeholder="비밀번호" maxlength="16">
+                        <span class="error error-pw" style="display: none;">최소 8자 최대 16자로 이루어져야 합니다. (띄어쓰기 불가)</span>
+                    </div>
+                    <button class="submit__button" type="submit">회원가입</button>
+                    <div class="option__box">
+                        <a href="/login">로그인</a>
+                        <a href="">아이디/비밀번호 찾기</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function(){
+            const joinForm = document.getElementById('join__form');
+            const nickname = document.querySelector(".input__box .input-nk");
+            const loginId = document.querySelector(".input__box .input-id");
+            const password = document.querySelector(".input__box .input-pw");
+            const errorNk = document.querySelector(".input__box .error-nk");
+            const errorId = document.querySelector(".input__box .error-id");
+            const errorPw = document.querySelector(".input__box .error-pw");
+            let valid = false;
+
+            joinForm.addEventListener("submit", e => {
+                e.preventDefault();
+                valid = true;
+                validateNickname();
+                validateLoginId();
+                validatePassword();
+                if(valid){
+                    const payload = new FormData(joinForm);
+                    fetch('/join', {
+                        method: 'post',
+                        body: payload
+                    })
+                    .then(res =>{
+                        if(res.ok){
+                            alert("회원가입이 완료되었습니다.");
+                            location.href = '/login';
+                        }else{
+                            return res.json();
+                        }
+                    })
+                    .then(data => {
+                        if(data.code === "ALREADY_EXIST") alert("중복된 아이디입니다.");
+                        else if(data.code === "NOT_VALID") alert("잘못된 요청입니다.");
+                        else alert('서버 오류입니다.');
+                    });
+                }
+            })
+
+            function validateNickname() {
+                if(nickname.value.length > 15 || nickname.value.length < 2 || nickname.value.includes(" ")){
+                    nickname.classList.add('error');
+                    errorNk.style.display = "inline-block";
+                    valid = false;
+                }else{
+                    nickname.classList.remove('error');
+                    errorNk.style.display = "none";
+                }
+            }
+
+            function validateLoginId() {
+                if(loginId.value.length > 30 || loginId.value.length < 6 || loginId.value.includes(" ")){
+                    loginId.classList.add('error');
+                    errorId.style.display = "inline-block";
+                    valid = false;
+                }else{
+                    loginId.classList.remove('error');
+                    errorId.style.display = "none";
+                }
+            }
+
+            function validatePassword() {
+                if(password.value.length > 16 || password.value.length < 8 || password.value.includes(" ")){
+                    password.classList.add('error');
+                    errorPw.style.display = "inline-block";
+                    valid = false;
+                }else{
+                    password.classList.remove('error');
+                    errorPw.style.display = "none";
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

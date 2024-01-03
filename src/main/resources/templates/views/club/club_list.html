@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comiclub</title>
+    <link rel="stylesheet" href="/css/club/club_list.css">
+    <div th:replace="~{views/common_layout :: common_css}"></div>
+    <div th:replace="~{views/common_layout :: footer_css}"></div>
+</head>
+<body>
+    <div th:replace="~{views/common_layout :: common_wrap(~{::main}, ~{::footer})}">
+        <th:block th:fragment="main">
+            <div id="main__wrap">
+                <div class="club-list__cont">
+                    <div class="club-item__box">
+                        <h2 class="box__head">게임</h2>
+                        <div class="box__body">
+                            <a class="club-item" th:href="|/clubs/${club.id}|"
+                               th:each="club : ${map.get('GAME')}" th:text="${club.clubName}">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="club-item__box">
+                        <h2 class="box__head">만화</h2>
+                        <div class="box__body">
+                            <a class="club-item" th:href="|/clubs/${club.id}|"
+                               th:each="club : ${map.get('CARTOON')}" th:text="${club.clubName}">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="club-item__box">
+                        <h2 class="box__head">애니메이션</h2>
+                        <div class="box__body">
+                            <a class="club-item" th:href="|/clubs/${club.id}|"
+                               th:each="club : ${map.get('ANIMATION')}" th:text="${club.clubName}">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="club-item__box">
+                        <h2 class="box__head">기타</h2>
+                        <div class="box__body">
+                            <a class="club-item" th:href="|/clubs/${club.id}|"
+                               th:each="club : ${map.get('OTHER')}" th:text="${club.clubName}">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+        <footer th:replace="~{views/common_layout :: footer_layout}" th:fragment="footer"></footer>
+    </div>
+</body>
+</html>

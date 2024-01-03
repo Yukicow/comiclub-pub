@@ -1,0 +1,110 @@
+
+
+
+
+.follow-list-cont{
+    padding: 50px 0px;
+    width: 60rem;
+    margin: auto;
+}
+
+
+
+.follow-title{
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'SUIT-Regular';
+    height: 5rem;
+    border-bottom: 2px solid rgb(229, 229, 229);
+    margin-bottom: 3rem;
+}
+
+
+
+.follow-list{
+    display: inline-flex;
+    flex-wrap: wrap;
+}
+
+.follow-item{
+    display: flex;
+    align-items: center;
+    padding-right: 3rem;
+    width: 30rem;
+    height: 10rem;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.thumb-box{
+    position: relative;
+    height: 100%;
+
+}
+
+.thumb-box .thumbnail{
+    height: 9rem;
+    width: 6rem;
+    margin-right: 30px;
+    border-radius: 10px;
+    border: 1px solid rgba(230, 230, 230, 0.5);
+}
+
+.thumb-box .adult{
+    position: absolute;
+    height: 15px;
+    left: 5%;
+    top: 5%;
+}
+
+
+
+.series-info{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.series-info .title{
+    font-size: 16px;
+    margin-bottom: 7px;
+}
+
+.series-info .author{
+    font-size: 14px;
+    color: gray;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+
+.series-info .recent-updated{
+    font-size: 13px;
+}
+
+
+.series-info span{
+    font-family: 'IBMPlexSansKR-Regular';
+}
+
+
+.unfollow-button{
+    height: 30px;
+    width: 75px;
+    border: none;
+    background-color: rgb(255, 192, 84);
+    border-radius: 5px;
+    color: rgb(94, 94, 94);
+    font-size: 14px;
+    font-family:  'MinSans-Regular';
+    cursor: pointer;
+}
+
+.unfollow-button:hover{
+    background-color: rgb(255, 183, 59);
+    color: black;
+}
+
+
+.float-right{
+
+}
