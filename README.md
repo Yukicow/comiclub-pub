@@ -36,7 +36,7 @@
 # ⚙ 사용 기술
 - Backend: `Java 17` `Spring Boot 3.0.4` `Spring Security` `Spring Data JPA` `QueryDsl`
 - Frontend: `Javascript(TypeScript)`
-- DB: `MaiaDB`
+- DB: `MariaDB`
 - Server: `AWS EC2`
 - Tools: `Intellij IDEA`
 <br>
