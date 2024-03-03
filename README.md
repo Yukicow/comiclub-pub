@@ -2,7 +2,7 @@
 
 #### 개발기간 : 2023-01 ~ 2023-10
 
-#### 배포 ULR :https://www.comiclub.co.kr/
+#### 배포 URL :https://www.comiclub.co.kr/
 
 <br>
 
