@@ -27,16 +27,24 @@ public interface FWSceneRepository extends JpaRepository<FreeWorkScene, Long> {
      * ( update를 하는 순서가 여기서는 중요하기 때문, 컬럼의 유니크 제약 조건을 위배하지 않게 하기 위함  )
      * 단, native query가 되었기 때문에 해당 method를 사용할 때에는 1차 캐시를 적절하게 비워 주어야 함
      * */
-    @Query(value = "UPDATE fw_scene s " +
-            "SET s.scene_number = s.scene_number + 1 " +
-            "WHERE s.free_work_id = :freeWorkId AND s.scene_number >= :sceneNumber " +
-            "ORDER BY s.scene_number DESC", nativeQuery = true)
+    @Query(value = """
+            UPDATE fw_scene s 
+            SET s.scene_number = s.scene_number + 1 
+            WHERE 
+                s.free_work_id = :freeWorkId 
+                AND s.scene_number >= :sceneNumber 
+            ORDER BY s.scene_number DESC
+            """, nativeQuery = true)
     void increaseSceneNumbers(@Param("freeWorkId") Long freeWorkId, @Param("sceneNumber") Integer sceneNumber);
 
-    @Query(value = "UPDATE fw_scene s " +
-            "SET s.scene_number = s.scene_number - 1 " +
-            "WHERE s.free_work_id = :freeWorkId AND s.scene_number > :sceneNumber " +
-            "ORDER BY s.scene_number ASC", nativeQuery = true)
+    @Query(value = """
+            UPDATE fw_scene s 
+            SET s.scene_number = s.scene_number - 1 
+            WHERE 
+                s.free_work_id = :freeWorkId 
+                AND s.scene_number > :sceneNumber 
+            ORDER BY s.scene_number ASC
+            """, nativeQuery = true)
     void decreaseSceneNumbers(@Param("freeWorkId") Long freeWorkId, @Param("sceneNumber") Integer sceneNumber);
 
     int countByFreeWorkId(Long workId);
