@@ -1,3 +1,8 @@
+/**
+ * Konva Editor의 offsetX offsetY는 node의 scale이 변경되면 offset값 자체는 변하지 않지만 offset을 이용한 동작을 할 때 scale값을 고려해 동작하는 듯 하다. 
+ * 하지만 width자체가 늘어나면 offset은 처음 초기화된 그대로이기 때문에 동적으로 변경시켜 주어야 한다.
+ */
+
 const editor = document.querySelector("#main-editor");
 const imgShower = document.querySelector(".img-shower");
 
